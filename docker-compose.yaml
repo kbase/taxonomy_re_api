@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+
+  # For running the python consumers
+  app:
+    build:
+      context: .
+      args:
+        DEVELOPMENT: 1
+    volumes:
+      - ${PWD}:/kb/module
+    ports:
+      - "127.0.0.1:5000:5000"
+    environment:
+      - DEVELOPMENT=1
+      - KBASE_SECURE_CONFIG_PARAM_RE_API=https://ci.kbase.us/services/relation_engine_api/
