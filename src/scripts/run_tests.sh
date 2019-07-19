@@ -12,7 +12,7 @@ bandit -r /kb/module/src
 sh /kb/module/src/scripts/entrypoint.sh &
 
 # Wait for the API to start successfully
-python -m src.utils.wait_for_services app &&
+python -m src.utils.wait_for_services &&
 
 # Run all tests
 python -m unittest discover /kb/module/src/test/

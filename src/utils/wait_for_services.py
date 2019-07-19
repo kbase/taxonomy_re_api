@@ -6,29 +6,24 @@ To wait on the main app/API:
 To wait on dependency services
     python wait_for_services.py
 """
-import sys
 import requests
 import time
 
 
-def wait_for_deps():
-    """Wait for any dependency services to start."""
-    # TODO
-    started = False
-    while not started:
-        pass
-
-
 def wait_for_app():
-    """Wait for the API itself to start."""
-    # TODO
+    """Wait for the app to start."""
+    url = 'http://localhost:5000'
     started = False
+    timeout = time.time() + 60
     while not started:
-        pass
+        try:
+            requests.get(url).raise_for_status()
+            started = True
+        except Exception:
+            if time.time() > timeout:
+                raise RuntimeError('Timed out waiting for app to start.')
+            time.sleep(3)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2 and sys.argv[1] == 'app':
-        wait_for_app()
-    else:
-        wait_for_deps()
+    wait_for_app()

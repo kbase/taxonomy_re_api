@@ -2,7 +2,7 @@ version: '3'
 
 services:
 
-  # For running the python consumers
+  # Web server
   app:
     build:
       context: .
