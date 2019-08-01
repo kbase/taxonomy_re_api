@@ -4,9 +4,10 @@ Main HTTP server entrypoint.
 import sanic
 from sanic_openapi import doc
 import traceback
+from uuid import uuid4
 
 from src.utils.config import get_config
-# from src.server.api_versions import api_v1
+from src.utils import re_api
 
 _CONF = get_config()
 app = sanic.Sanic()
@@ -33,18 +34,80 @@ taxon_doc = doc.JsonBody({
 })
 
 
+def _get_taxon(params):
+    """
+    Fetch a taxon by ID.
+    Returns (result, err), one of which will be None.
+    """
+    return ('hi', None)
+
+
+def _get_ancestors(params):
+    """
+    Fetch ancestor lineage for a taxon by ID.
+    Returns (result, err), one of which will be None.
+    """
+    return re_api.query("ncbi_taxon_get_ancestors", {
+        'key': params['taxonomy_id']
+    })
+
+
+def _get_descendants(params):
+    """
+    Fetch the descendants for a taxon by ID.
+    Returns (result, err), one of which will be None.
+    """
+    return re_api.query("ncbi_taxon_get_descendants", {
+        'key': params['taxonomy_id']
+    })
+
+
+def _get_siblings(params):
+    """
+    Fetch the siblings for a taxon by ID.
+    Returns (result, err), one of which will be None.
+    """
+    return re_api.query("ncbi_taxon_get_siblings", {
+        'key': params['taxonomy_id']
+    })
+
+
+def _search_taxa(params):
+    """
+    Search for a taxon vertex by scientific name.
+    Returns (result, err), one of which will be None.
+    """
+    return re_api.query("ncbi_taxon_search_sci_name", params)
+
+
 @app.route('/')
 async def health_check(request):
     """Really basic health check; could be expanded if needed."""
     return sanic.response.json({'status': 'ok'})
 
 
-@app.get('/taxa/<taxon_id:int>')
-@doc.summary("Fetch a taxon by taxon_id")
-@doc.produces(taxon_doc)
-async def json_rpc(request, taxon_id):
-    """Handle json rpc requests."""
-    return sanic.response.json({'taxon_id': taxon_id})
+@app.route('/rpc', methods=["POST"])
+async def handle_rpc(req):
+    """Handle a JSON RPC 2.0 request."""
+    body = req.json
+    handlers = {
+        'get_taxon': _get_taxon,
+        'get_ancestors': _get_ancestors,
+        'get_descendants': _get_descendants,
+        'get_siblings': _get_siblings,
+        'search_taxa': _search_taxa,
+    }
+    _id = body.get('id', str(uuid4()))
+    if not body.get('method') in handlers:
+        raise sanic.exceptions.NotFound(f"Method not found: {body.get('method')}")
+    meth = handlers[body['method']]
+    (result, err) = meth(body.get('params'))
+    resp = {'jsonrpc': '2.0', 'id': _id}
+    if result:
+        resp['result'] = result
+    elif err:
+        resp['error'] = err
+    return sanic.response.json(resp)
 
 
 @app.exception(sanic.exceptions.NotFound)

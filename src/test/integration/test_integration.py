@@ -1,3 +1,4 @@
+import json
 import unittest
 import requests
 
@@ -12,8 +13,15 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(resp.ok)
         self.assertEqual(resp.json()['status'], 'ok')
 
-    def test_fetch_taxon(self):
+    def test_get_ancestors(self):
         """Test a call to fetch a taxon by id."""
-        resp = requests.get(_URL + '/taxa/1')
+        resp = requests.post(
+            _URL + '/rpc',
+            data=json.dumps({
+                'method': 'get_ancestors',
+                'params': {'taxonomy_id': '100'}
+            })
+        )
         self.assertTrue(resp.ok)
-        print('resp', resp.json())
+        body = resp.json()
+        self.assertEqual(len(body['result']['results']), 9)
