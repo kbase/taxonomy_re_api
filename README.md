@@ -43,7 +43,7 @@ The RPC `"result"` field has the following JSON schema, representing query resul
 
 Fetch the document data for a single taxon by ID.
 
-**Example request:**
+Example request:
 
 ```sh
 curl -d '{"method": "get_taxon", "params": {"id": "ncbi_taxon/100"}}' <url>
