@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from src.utils.config import get_config
 from src.utils import re_api
+from src.exceptions import InvalidParams
 
 _CONF = get_config()
 app = sanic.Sanic()
@@ -82,7 +83,17 @@ def _search_taxa(params):
     Search for a taxon vertex by scientific name.
     Returns (result, err), one of which will be None.
     """
-    return re_api.query("ncbi_taxon_search_sci_name", params)
+    page = params.get('page', 1) - 1
+    page_len = params.get('page_len', 20)
+    offset = page * 20
+    if page_len > 1000:
+        raise InvalidParams('Page length is larger than 1000')
+    query = {
+        'search_text': params['search_text'],
+        'limit': page_len,
+        'offset': offset
+    }
+    return re_api.query("ncbi_taxon_search_sci_name", query)
 
 
 @app.route('/', methods=["POST", "GET"])
@@ -116,6 +127,11 @@ async def handle_rpc(req):
 async def page_not_found(request, err):
     """Handle 404 as a json response."""
     return sanic.response.json({'error': '404 Not found'}, status=404)
+
+
+@app.exception(InvalidParams)
+async def invalid_params(request, err):
+    resp = {'error': str(err), 'type': 'invalid_params'}
 
 
 # Any other exception -> 500

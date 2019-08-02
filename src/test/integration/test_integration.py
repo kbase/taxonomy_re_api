@@ -96,11 +96,11 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'search_taxa',
-                'params': {'search_text': 'prefix:rhodobact'}
+                'params': {'search_text': 'prefix:rhodobact', 'page': 2, 'page_len': 10}
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
-        self.assertEqual(body['result']['count'], 20)
+        self.assertEqual(body['result']['count'], 10)
         for result in body['result']['results']:
             self.assertTrue(result['scientific_name'].lower().startswith('rhodobact'))
