@@ -39,7 +39,9 @@ def _get_taxon(params):
     Fetch a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    return ('hi', None)
+    _id = params['id']
+    (coll, key) = _id.split('/')
+    return re_api.query("ncbi_fetch_taxon", {'key': key})
 
 
 def _get_ancestors(params):
@@ -47,9 +49,9 @@ def _get_ancestors(params):
     Fetch ancestor lineage for a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    return re_api.query("ncbi_taxon_get_ancestors", {
-        'key': params['taxonomy_id']
-    })
+    _id = params['id']
+    (coll, key) = _id.split('/')
+    return re_api.query("ncbi_taxon_get_ancestors", {'key': key})
 
 
 def _get_descendants(params):
@@ -57,9 +59,12 @@ def _get_descendants(params):
     Fetch the descendants for a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    return re_api.query("ncbi_taxon_get_descendants", {
-        'key': params['taxonomy_id']
-    })
+    _id = params['id']
+    (coll, key) = _id.split('/')
+    query = {'key': key}
+    if params.get('levels'):
+        query['levels'] = params['levels']
+    return re_api.query("ncbi_taxon_get_descendants", query)
 
 
 def _get_siblings(params):
@@ -67,9 +72,9 @@ def _get_siblings(params):
     Fetch the siblings for a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    return re_api.query("ncbi_taxon_get_siblings", {
-        'key': params['taxonomy_id']
-    })
+    _id = params['id']
+    (coll, key) = _id.split('/')
+    return re_api.query("ncbi_taxon_get_siblings", {'key': key})
 
 
 def _search_taxa(params):
