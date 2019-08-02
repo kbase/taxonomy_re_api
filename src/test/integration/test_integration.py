@@ -16,7 +16,7 @@ class TestIntegration(unittest.TestCase):
     def test_get_ancestors(self):
         """Test a call to get ancestors of a taxon."""
         resp = requests.post(
-            _URL + '/rpc',
+            _URL,
             data=json.dumps({
                 'method': 'get_ancestors',
                 'params': {'id': 'ncbi_taxon/100'}
@@ -32,7 +32,7 @@ class TestIntegration(unittest.TestCase):
     def test_get_descendants(self):
         """Test a call to get descendants by ID."""
         resp = requests.post(
-            _URL + '/rpc',
+            _URL,
             data=json.dumps({
                 'method': 'get_descendants',
                 'params': {'id': 'ncbi_taxon/28211'}
@@ -48,7 +48,7 @@ class TestIntegration(unittest.TestCase):
     def test_get_descendants_2levels(self):
         """Test a call to get 2 levels of descendants for a taxon."""
         resp = requests.post(
-            _URL + '/rpc',
+            _URL,
             data=json.dumps({
                 'method': 'get_descendants',
                 'params': {'id': 'ncbi_taxon/28211', 'levels': 2}
@@ -64,7 +64,7 @@ class TestIntegration(unittest.TestCase):
     def test_get_siblings(self):
         """Test a call to get taxon siblings by taxon ID."""
         resp = requests.post(
-            _URL + '/rpc',
+            _URL,
             data=json.dumps({
                 'method': 'get_siblings',
                 'params': {'id': 'ncbi_taxon/100'}
@@ -79,7 +79,7 @@ class TestIntegration(unittest.TestCase):
     def test_get_taxon(self):
         """Test a call to fetch a taxon by id."""
         resp = requests.post(
-            _URL + '/rpc',
+            _URL,
             data=json.dumps({
                 'method': 'get_taxon',
                 'params': {'id': 'ncbi_taxon/100'}
@@ -93,7 +93,7 @@ class TestIntegration(unittest.TestCase):
     def test_search_taxa(self):
         """Test a call to search taxa by scientific name."""
         resp = requests.post(
-            _URL + '/rpc',
+            _URL,
             data=json.dumps({
                 'method': 'search_taxa',
                 'params': {'search_text': 'prefix:rhodobact'}

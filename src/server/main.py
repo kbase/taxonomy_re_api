@@ -85,15 +85,12 @@ def _search_taxa(params):
     return re_api.query("ncbi_taxon_search_sci_name", params)
 
 
-@app.route('/')
-async def health_check(request):
-    """Really basic health check; could be expanded if needed."""
-    return sanic.response.json({'status': 'ok'})
-
-
-@app.route('/rpc', methods=["POST"])
+@app.route('/', methods=["POST", "GET"])
 async def handle_rpc(req):
     """Handle a JSON RPC 2.0 request."""
+    if req.method == 'GET':
+        # Server status request
+        return sanic.response.json({'status': 'ok'})
     body = req.json
     handlers = {
         'get_taxon': _get_taxon,
