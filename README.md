@@ -50,7 +50,7 @@ curl -d '{"method": "get_taxon", "params": {"id": "ncbi_taxon/100"}}' <url>
 ```
 
 <details>
-<summary>**Example response:**</summary>
+<summary>Example response:</summary>
 <div>
 
 ```json
@@ -117,7 +117,7 @@ For the response schema, see the **Responses** section above.
 
 Fetch the ancestors for a taxon vertex.
 
-**Example request:**
+Example request:
 
 ```sh
 curl -d '{"method": "get_ancestors", "params": {"id": "ncbi_taxon/100"}}' <url>
@@ -127,7 +127,8 @@ Example response:
 
 <details>
 <summary>Example response:</summary>
-<p>
+<div>
+
 ```json
 {
     "jsonrpc": "2.0",
@@ -249,7 +250,8 @@ Example response:
     }
 }
 ```
-</p>
+
+</div>
 </details>
 
 Request parameters schema:
@@ -273,7 +275,7 @@ For the response schema, see the **Responses** section above.
 
 Fetch the descendants for a taxon vertex. Defaults to direct children, but can be specified to return multiple levels of children.
 
-**Example request:**
+Example request:
 
 ```sh
 curl -d '{"method": "get_descendants", "params": {"id": "ncbi_taxon/28211"}}' <url>
@@ -282,8 +284,9 @@ curl -d '{"method": "get_descendants", "params": {"id": "ncbi_taxon/28211"}}' <u
 Example response:
 
 <details>
-<summary>**Example response:**</summary>
-<p>
+<summary>Example response:</summary>
+<div>
+
 ```json
 {
     "jsonrpc": "2.0",
@@ -330,7 +333,8 @@ Example response:
     }
 }
 ```
-</p>
+
+</div>
 </details>
 
 Request parameters schema:
@@ -360,7 +364,7 @@ For the response schema, see the **Responses** section above.
 
 Fetch the siblings for a taxon.
 
-**Example request:**
+Example request:
 
 ```sh
 curl -d '{"method": "get_siblings", "params": {"id": "ncbi_taxon/100"}}' <url>
@@ -369,8 +373,9 @@ curl -d '{"method": "get_siblings", "params": {"id": "ncbi_taxon/100"}}' <url>
 Example response:
 
 <details>
-<summary>**Example response:**</summary>
-<p>
+<summary>Example response:</summary>
+<div>
+
 ```json
 {
     "jsonrpc": "2.0",
@@ -426,7 +431,8 @@ Example response:
     }
 }
 ```
-</p>
+
+</div>
 </details>
 
 Request parameters schema:
@@ -459,7 +465,7 @@ Results are paginated to 20 per page by default. You can pass a `"page"` paramet
 
 Pass a `"page_len"` param to customize the page length.
 
-**Example request:**
+Example request:
 
 ```sh
 curl -d '{"method": "search_taxa", "params": {"search_text": "prefix:rhodo,|prefix:psuedo"}}' <url>
@@ -469,7 +475,8 @@ Example response:
 
 <details>
 <summary>Example response:</summary>
-<p>
+<div>
+
 ```json
 {
     "jsonrpc": "2.0",
@@ -536,7 +543,8 @@ Example response:
     }
 }
 ```
-</p>
+
+</div>
 </details>
 
 Request parameters schema:
@@ -547,7 +555,7 @@ Request parameters schema:
   "properties": {
     "search_text": {
       "type": "string",
-      "title": "Scientific name search query text."
+      "title": "Scientific name search query text.",
       "examples": ["prefix:rhodo,|psueodmonas"]
     },
     "page": {
