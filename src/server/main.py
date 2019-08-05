@@ -119,7 +119,7 @@ async def handle_rpc(req):
     if not isinstance(params, list) or not params:
         raise InvalidParams(f"Method params should be a single-element array: {params}")
     (result, err) = meth(params[0])
-    resp = {'version': '2.0', 'id': _id}
+    resp = {'version': '1.1', 'id': _id}
     if result:
         resp['result'] = [result]
     elif err:
