@@ -8,30 +8,41 @@ This service is a registered as a KBase dynamic service under the module name `t
 
 JSON RPC requests can be made to to the root path of the URL as a POST request with a json body.
 
+The API follows two unusual conventions followed by other KBase APIs:
+* All method names are prefixed by the module name (`taxonomy_re_api.get_taxon` instead of just `get_taxon`)
+* All params and results are wrapped in an extra array
+
 ### Responses
 
 The RPC `"result"` field has the following JSON schema, representing query results from RE:
 
+The result is always wrapped in an array of one element. This is extraneous but follows KBase convention.
+
 ```json
-{ "type": "object",
-  "properties": {
-    "count": {"type": "integer", "title": "Result count"},
-    "results": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": true,
-        "description": "Standard RE database fields, plus all additional document-specific fields.",
-        "properties": {
-          "_id": {"type": "string", "title": "RE document ID", "examples": ["ncbi_taxon/100"]},
-          "_key": {"type": "string", "title": "RE document key", "examples": ["100"]},
-          "_rev": {"type": "string", "title": "DB revision ID"}
+{ "type": "array",
+  "minItems": 1,
+  "maxItems": 1,
+  "items": {
+    "type": "object",
+    "properties": {
+      "count": {"type": "integer", "title": "Result count"},
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Standard RE database fields, plus all additional document-specific fields.",
+          "properties": {
+            "_id": {"type": "string", "title": "RE document ID", "examples": ["ncbi_taxon/100"]},
+            "_key": {"type": "string", "title": "RE document key", "examples": ["100"]},
+            "_rev": {"type": "string", "title": "DB revision ID"}
+          }
         }
+      },
+      "stats": {
+        "type": "object",
+        "description": "RE query execution meta-info"
       }
-    },
-    "stats": {
-      "type": "object",
-      "description": "RE query execution meta-info"
     }
   }
 }
@@ -39,14 +50,14 @@ The RPC `"result"` field has the following JSON schema, representing query resul
 
 "_id" is unique across the database, while "_key" is only unique within its collection.
 
-### get_taxon(params)
+### taxonomy_re_api.get_taxon(params)
 
 Fetch the document data for a single taxon by ID.
 
 Example request:
 
 ```sh
-curl -d '{"method": "get_taxon", "params": {"id": "ncbi_taxon/100"}}' <url>
+curl -d '{"method": "taxonomy_re_api.get_taxon", "params": [{"id": "ncbi_taxon/100"}]}' <url>
 ```
 
 <details>
@@ -54,7 +65,7 @@ curl -d '{"method": "get_taxon", "params": {"id": "ncbi_taxon/100"}}' <url>
 <div>
 
 ```json
-{
+[{
     "jsonrpc": "2.0",
     "id": "7d802521-10a7-48b2-ab99-105390ef72fa",
     "result": {
@@ -90,13 +101,13 @@ curl -d '{"method": "get_taxon", "params": {"id": "ncbi_taxon/100"}}' <url>
             "writesIgnored": 0
         }
     }
-}
+}]
 ```
 
 </div>
 </details>
 
-Request parameters schema:
+Request parameters schema (wrapped in an array):
 
 ```json
 { "type": "object",
@@ -113,14 +124,14 @@ Request parameters schema:
 
 For the response schema, see the **Responses** section above.
 
-### get_ancestors(params)
+### taxonomy_re_api.get_ancestors(params)
 
 Fetch the ancestors for a taxon vertex.
 
 Example request:
 
 ```sh
-curl -d '{"method": "get_ancestors", "params": {"id": "ncbi_taxon/100"}}' <url>
+curl -d '{"method": "taxonomy_re_api.get_ancestors", "params": [{"id": "ncbi_taxon/100"}]}' <url>
 ```
 
 Example response:
@@ -130,7 +141,7 @@ Example response:
 <div>
 
 ```json
-{
+[{
     "jsonrpc": "2.0",
     "id": "d6fa9908-849a-4421-931a-f01328a769a9",
     "result": {
@@ -248,13 +259,13 @@ Example response:
             "writesIgnored": 0
         }
     }
-}
+}]
 ```
 
 </div>
 </details>
 
-Request parameters schema:
+Request parameters schema (wrapped in an array):
 
 ```json
 { "type": "object",
@@ -271,14 +282,14 @@ Request parameters schema:
 
 For the response schema, see the **Responses** section above.
 
-### get_descendants(params)
+### taxonomy_re_api.get_descendants(params)
 
 Fetch the descendants for a taxon vertex. Defaults to direct children, but can be specified to return multiple levels of children.
 
 Example request:
 
 ```sh
-curl -d '{"method": "get_descendants", "params": {"id": "ncbi_taxon/28211"}}' <url>
+curl -d '{"method": "taxonomy_re_api.get_descendants", "params": {"id": "ncbi_taxon/28211"}}' <url>
 ```
 
 Example response:
@@ -288,7 +299,7 @@ Example response:
 <div>
 
 ```json
-{
+[{
     "jsonrpc": "2.0",
     "id": "da3803b6-0ca9-412d-adbd-15fa329649a4",
     "result": {
@@ -331,13 +342,13 @@ Example response:
             }
         ]
     }
-}
+}]
 ```
 
 </div>
 </details>
 
-Request parameters schema:
+Request parameters schema (wrapped in an array):
 
 ```json
 { "type": "object",
@@ -360,14 +371,14 @@ Request parameters schema:
 
 For the response schema, see the **Responses** section above.
 
-### get_siblings(params)
+### taxonomy_re_api.get_siblings(params)
 
 Fetch the siblings for a taxon.
 
 Example request:
 
 ```sh
-curl -d '{"method": "get_siblings", "params": {"id": "ncbi_taxon/100"}}' <url>
+curl -d '{"method": "taxonomy_re_api.get_siblings", "params": {"id": "ncbi_taxon/100"}}' <url>
 ```
 
 Example response:
@@ -435,7 +446,7 @@ Example response:
 </div>
 </details>
 
-Request parameters schema:
+Request parameters schema (wrapped in an array):
 
 ```json
 { "type": "object",
@@ -452,7 +463,7 @@ Request parameters schema:
 
 For the response schema, see the **Responses** section above.
 
-### search_taxa(params)
+### taxonomy_re_api.search_taxa(params)
 
 Search for taxa based on scientific name.
 
@@ -468,7 +479,7 @@ Pass a `"page_len"` param to customize the page length.
 Example request:
 
 ```sh
-curl -d '{"method": "search_taxa", "params": {"search_text": "prefix:rhodo,|prefix:psuedo"}}' <url>
+curl -d '{"method": "taxonomy_re_api.search_taxa", "params": {"search_text": "prefix:rhodo,|prefix:psuedo"}}' <url>
 ```
 
 Example response:
@@ -547,7 +558,7 @@ Example response:
 </div>
 </details>
 
-Request parameters schema:
+Request parameters schema (wrapped in an array):
 
 ```json
 { "type": "object",
