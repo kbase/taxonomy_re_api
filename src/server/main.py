@@ -2,6 +2,7 @@
 Main HTTP server entrypoint.
 """
 import sanic
+from sanic_cors import CORS
 from sanic_openapi import doc
 import traceback
 from uuid import uuid4
@@ -12,7 +13,7 @@ from src.exceptions import InvalidParams
 
 _CONF = get_config()
 app = sanic.Sanic()
-# app.blueprint(api_v1)
+CORS(app, automatic_options=True)
 
 app.config.API_VERSION = '0.1'
 app.config.API_TITLE = 'Taxonomy RE API'
@@ -132,6 +133,7 @@ async def page_not_found(request, err):
 @app.exception(InvalidParams)
 async def invalid_params(request, err):
     resp = {'error': str(err), 'type': 'invalid_params'}
+    return sanic.response.json(resp, status=400)
 
 
 # Any other exception -> 500
