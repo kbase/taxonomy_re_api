@@ -99,26 +99,29 @@ def _search_taxa(params):
 
 @app.route('/', methods=["POST", "GET"])
 async def handle_rpc(req):
-    """Handle a JSON RPC 2.0 request."""
+    """Handle a JSON RPC 1.1 request."""
     if req.method == 'GET':
         # Server status request
         return sanic.response.json({'status': 'ok'})
     body = req.json
     handlers = {
-        'get_taxon': _get_taxon,
-        'get_ancestors': _get_ancestors,
-        'get_descendants': _get_descendants,
-        'get_siblings': _get_siblings,
-        'search_taxa': _search_taxa,
+        'taxonomy_re_api.get_taxon': _get_taxon,
+        'taxonomy_re_api.get_ancestors': _get_ancestors,
+        'taxonomy_re_api.get_descendants': _get_descendants,
+        'taxonomy_re_api.get_siblings': _get_siblings,
+        'taxonomy_re_api.search_taxa': _search_taxa,
     }
     _id = body.get('id', str(uuid4()))
     if not body.get('method') in handlers:
         raise sanic.exceptions.NotFound(f"Method not found: {body.get('method')}")
     meth = handlers[body['method']]
-    (result, err) = meth(body.get('params'))
-    resp = {'jsonrpc': '2.0', 'id': _id}
+    params = body.get('params')
+    if not isinstance(params, list) or not params:
+        raise InvalidParams(f"Method params should be a single-element array: {params}")
+    (result, err) = meth(params[0])
+    resp = {'version': '2.0', 'id': _id}
     if result:
-        resp['result'] = result
+        resp['result'] = [result]
     elif err:
         resp['error'] = err
     return sanic.response.json(resp)

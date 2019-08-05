@@ -18,14 +18,15 @@ class TestIntegration(unittest.TestCase):
         resp = requests.post(
             _URL,
             data=json.dumps({
-                'method': 'get_ancestors',
-                'params': {'id': 'ncbi_taxon/100'}
+                'method': 'taxonomy_re_api.get_ancestors',
+                'params': [{'id': 'ncbi_taxon/100'}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
-        self.assertEqual(len(body['result']['results']), 9)
-        ranks = [r['rank'] for r in body['result']['results']]
+        result = body['result'][0]
+        self.assertEqual(len(result['results']), 9)
+        ranks = [r['rank'] for r in result['results']]
         expected_ranks = ['genus', 'family', 'order', 'class', 'phylum', 'superkingdom', 'no rank', 'no rank', 'no rank']  # noqa
         self.assertEqual(ranks, expected_ranks)
 
@@ -34,14 +35,15 @@ class TestIntegration(unittest.TestCase):
         resp = requests.post(
             _URL,
             data=json.dumps({
-                'method': 'get_descendants',
-                'params': {'id': 'ncbi_taxon/28211'}
+                'method': 'taxonomy_re_api.get_descendants',
+                'params': [{'id': 'ncbi_taxon/28211'}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
-        self.assertEqual(body['result']['count'], 21)
-        ranks = {r['rank'] for r in body['result']['results']}
+        result = body['result'][0]
+        self.assertEqual(result['count'], 21)
+        ranks = {r['rank'] for r in result['results']}
         expected_ranks = {'order', 'no rank'}
         self.assertEqual(ranks, expected_ranks)
 
@@ -50,14 +52,15 @@ class TestIntegration(unittest.TestCase):
         resp = requests.post(
             _URL,
             data=json.dumps({
-                'method': 'get_descendants',
-                'params': {'id': 'ncbi_taxon/28211', 'levels': 2}
+                'method': 'taxonomy_re_api.get_descendants',
+                'params': [{'id': 'ncbi_taxon/28211', 'levels': 2}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
-        self.assertEqual(body['result']['count'], 717)
-        ranks = {r['rank'] for r in body['result']['results']}
+        result = body['result'][0]
+        self.assertEqual(result['count'], 717)
+        ranks = {r['rank'] for r in result['results']}
         expected_ranks = {'order', 'family', 'species', 'genus', 'no rank'}
         self.assertEqual(ranks, expected_ranks)
 
@@ -66,14 +69,15 @@ class TestIntegration(unittest.TestCase):
         resp = requests.post(
             _URL,
             data=json.dumps({
-                'method': 'get_siblings',
-                'params': {'id': 'ncbi_taxon/100'}
+                'method': 'taxonomy_re_api.get_siblings',
+                'params': [{'id': 'ncbi_taxon/100'}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
-        self.assertEqual(body['result']['count'], 69)
-        ranks = {r['rank'] for r in body['result']['results']}
+        result = body['result'][0]
+        self.assertEqual(result['count'], 69)
+        ranks = {r['rank'] for r in result['results']}
         self.assertEqual(ranks, {'species', 'no rank'})
 
     def test_get_taxon(self):
@@ -81,26 +85,28 @@ class TestIntegration(unittest.TestCase):
         resp = requests.post(
             _URL,
             data=json.dumps({
-                'method': 'get_taxon',
-                'params': {'id': 'ncbi_taxon/100'}
+                'method': 'taxonomy_re_api.get_taxon',
+                'params': [{'id': 'ncbi_taxon/100'}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
-        self.assertEqual(body['result']['count'], 1)
-        self.assertEqual(body['result']['results'][0]['_id'], 'ncbi_taxon/100')
+        result = body['result'][0]
+        self.assertEqual(result['count'], 1)
+        self.assertEqual(result['results'][0]['_id'], 'ncbi_taxon/100')
 
     def test_search_taxa(self):
         """Test a call to search taxa by scientific name."""
         resp = requests.post(
             _URL,
             data=json.dumps({
-                'method': 'search_taxa',
-                'params': {'search_text': 'prefix:rhodobact', 'page': 2, 'page_len': 10}
+                'method': 'taxonomy_re_api.search_taxa',
+                'params': [{'search_text': 'prefix:rhodobact', 'page': 2, 'page_len': 10}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
-        self.assertEqual(body['result']['count'], 10)
-        for result in body['result']['results']:
+        result = body['result'][0]
+        self.assertEqual(result['count'], 10)
+        for result in result['results']:
             self.assertTrue(result['scientific_name'].lower().startswith('rhodobact'))
