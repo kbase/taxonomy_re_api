@@ -4,6 +4,7 @@ Relation engine API client.
 import json
 import requests
 from src.utils.config import get_config
+from src.exceptions import REError
 
 _CONF = get_config()
 
@@ -15,7 +16,6 @@ def query(name, params):
         params={'stored_query': name},
         data=json.dumps(params)
     )
-    body = resp.json()
     if not resp.ok:
-        return (None, body['error'])
-    return (body, None)
+        raise REError(resp)
+    return resp.json()

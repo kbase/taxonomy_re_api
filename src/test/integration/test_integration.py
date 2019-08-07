@@ -7,11 +7,22 @@ _URL = 'http://localhost:5000'
 
 class TestIntegration(unittest.TestCase):
 
+    # TODO invalid http method
+    # TODO invalid json body
+    # TODO missing method
+    # TODO empty method
+    # TODO unknown method
+    # TODO missing params
+    # TODO empty params (empty list and list of empty obj)
+    # TODO invalid id
+    # TODO valid id but nonexistent
+    # TODO error response from RE API
+
     def test_status(self):
         """Test the health check request."""
         resp = requests.get(_URL)
         self.assertTrue(resp.ok)
-        self.assertEqual(resp.json()['status'], 'ok')
+        self.assertEqual(resp.json()['result'][0]['status'], 'ok')
 
     def test_get_ancestors(self):
         """Test a call to get ancestors of a taxon."""
