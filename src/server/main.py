@@ -87,7 +87,7 @@ def _search_taxa(params):
     """
     schema = {
         'type': 'object',
-        'required': 'search_text',
+        'required': ['search_text'],
         'params': {
             'search_text': {'type': 'string'},
             'limit': {'type': 'integer'},
@@ -115,7 +115,7 @@ async def handle_rpc(req):
         return sanic.response.raw(b'', status=204)
     if req.method == 'GET':
         # Server status request
-        return _rpc_resp(req, {'result': {'status': 'ok'}})
+        return _rpc_resp(req, {'result': [{'status': 'ok'}]})
     body = req.json
     handlers = {
         'taxonomy_re_api.get_taxon': _get_taxon,

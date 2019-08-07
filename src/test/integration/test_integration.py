@@ -21,7 +21,7 @@ class TestIntegration(unittest.TestCase):
         """Test the health check request."""
         resp = requests.get(_URL)
         self.assertTrue(resp.ok)
-        self.assertEqual(resp.json()['status'], 'ok')
+        self.assertEqual(resp.json()['result'][0]['status'], 'ok')
 
     def test_get_ancestors(self):
         """Test a call to get ancestors of a taxon."""
