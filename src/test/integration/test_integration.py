@@ -7,6 +7,16 @@ _URL = 'http://localhost:5000'
 
 class TestIntegration(unittest.TestCase):
 
+    # TODO invalid http method
+    # TODO invalid json body
+    # TODO missing method
+    # TODO empty method
+    # TODO unknown method
+    # TODO missing params
+    # TODO empty params (empty list and list of empty obj)
+    # TODO invalid id
+    # TODO valid id but nonexistent
+
     def test_status(self):
         """Test the health check request."""
         resp = requests.get(_URL)
