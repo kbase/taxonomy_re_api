@@ -16,6 +16,7 @@ class TestIntegration(unittest.TestCase):
     # TODO empty params (empty list and list of empty obj)
     # TODO invalid id
     # TODO valid id but nonexistent
+    # TODO error response from RE API
 
     def test_status(self):
         """Test the health check request."""
