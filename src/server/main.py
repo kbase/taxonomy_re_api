@@ -132,12 +132,8 @@ async def handle_rpc(req):
     params = body.get('params')
     if not isinstance(params, list) or not params:
         raise InvalidParams(f"Method params should be a single-element array. It is: {params}")
-    (result, err) = meth(params[0])
-    resp = {}  # type: dict
-    if result:
-        resp['result'] = [result]
-    elif err:
-        resp['error'] = err
+    result = meth(params[0])
+    resp = {'result': [result]}
     return _rpc_resp(req, resp)
 
 
@@ -153,9 +149,11 @@ async def cors_resp(req, res):
 async def page_not_found(req, err):
     """Handle 404 as a json response."""
     resp = {
-        'name': 'not_found',
-        'code': 404,
-        'message': 'Not found - ' + str(err),
+        'error': {
+            'name': 'not_found',
+            'code': 404,
+            'message': 'Not found - ' + str(err),
+        }
     }
     return _rpc_resp(req, resp, status=404)
 
@@ -169,10 +167,12 @@ async def invalid_schema(req, err):
         'path': err.path,
     }
     resp = {
-        'name': 'params_invalid',
-        'error': error,
-        'code': 400,
-        'message': 'Parameter validation error: ' + err.message,
+        'error': {
+            'name': 'params_invalid',
+            'error': error,
+            'code': 400,
+            'message': 'Parameter validation error: ' + err.message,
+        }
     }
     return _rpc_resp(req, resp, status=400)
 
@@ -180,23 +180,37 @@ async def invalid_schema(req, err):
 @app.exception(REError)
 async def re_api_error(req, err):
     resp = {
-        'name': 'relation_engine_error',
-        'code': 400,
-        'message': 'Relation engine API error',
-        'error': req.resp_json or req.resp_text
+        'error': {
+            'name': 'relation_engine_error',
+            'code': 400,
+            'message': 'Relation engine API error',
+            'error': req.resp_json or req.resp_text,
+        }
     }
     return _rpc_resp(req, resp, status=400)
 
 
 @app.exception(sanic.exceptions.InvalidUsage)
 async def invalid_usage(req, err):
-    resp = {'name': 'invalid_usage', 'message': str(err), 'code': 400}
+    resp = {
+        'error': {
+            'name': 'invalid_usage',
+            'message': str(err),
+            'code': 400,
+        }
+    }
     return _rpc_resp(req, resp, status=400)
 
 
 @app.exception(InvalidParams)
 async def invalid_params(req, err):
-    resp = {'name': 'invalid_request', 'message': str(err), 'code': 400}
+    resp = {
+        'error': {
+            'name': 'invalid_request',
+            'message': str(err),
+            'code': 400,
+        }
+    }
     return _rpc_resp(req, resp, status=400)
 
 
@@ -206,10 +220,12 @@ async def server_error(req, err):
     traceback.print_exc()
     error = {'class': err.__class__.__name__}
     resp = {
-        'name': 'uncaught_error',
-        'code': 500,
-        'message': str(err),
-        'error': error
+        'error': {
+            'name': 'uncaught_error',
+            'code': 500,
+            'message': str(err),
+            'error': error
+        }
     }
     return _rpc_resp(req, resp, status=500)
 

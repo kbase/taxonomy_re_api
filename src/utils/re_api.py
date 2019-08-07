@@ -18,5 +18,4 @@ def query(name, params):
     )
     if not resp.ok:
         raise REError(resp)
-    body = resp.json()
-    return (body, None)
+    return resp.json()
