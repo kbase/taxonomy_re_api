@@ -24,55 +24,39 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(resp.ok)
         self.assertEqual(resp.json()['result'][0]['status'], 'ok')
 
-    def test_get_ancestors(self):
+    def test_get_lineage(self):
         """Test a call to get ancestors of a taxon."""
         resp = requests.post(
             _URL,
             data=json.dumps({
-                'method': 'taxonomy_re_api.get_ancestors',
+                'method': 'taxonomy_re_api.get_lineage',
                 'params': [{'id': 'ncbi_taxon/100'}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
+        print('lineage', body)
         result = body['result'][0]
-        self.assertEqual(len(result['results']), 9)
+        self.assertEqual(len(result['results']), 8)
         ranks = [r['rank'] for r in result['results']]
-        expected_ranks = ['genus', 'family', 'order', 'class', 'phylum', 'superkingdom', 'no rank', 'no rank', 'no rank']  # noqa
+        expected_ranks = ['no rank', 'no rank', 'superkingdom', 'phylum', 'class', 'order', 'family', 'genus']
         self.assertEqual(ranks, expected_ranks)
 
-    def test_get_descendants(self):
-        """Test a call to get descendants by ID."""
+    def test_get_children(self):
+        """Test a call to get direct descendants by ID."""
         resp = requests.post(
             _URL,
             data=json.dumps({
-                'method': 'taxonomy_re_api.get_descendants',
+                'method': 'taxonomy_re_api.get_children',
                 'params': [{'id': 'ncbi_taxon/28211'}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
-        self.assertEqual(result['count'], 21)
+        self.assertEqual(result['count'], 20)
         ranks = {r['rank'] for r in result['results']}
         expected_ranks = {'order', 'no rank'}
-        self.assertEqual(ranks, expected_ranks)
-
-    def test_get_descendants_2levels(self):
-        """Test a call to get 2 levels of descendants for a taxon."""
-        resp = requests.post(
-            _URL,
-            data=json.dumps({
-                'method': 'taxonomy_re_api.get_descendants',
-                'params': [{'id': 'ncbi_taxon/28211', 'levels': 2}]
-            })
-        )
-        self.assertTrue(resp.ok)
-        body = resp.json()
-        result = body['result'][0]
-        self.assertEqual(result['count'], 717)
-        ranks = {r['rank'] for r in result['results']}
-        expected_ranks = {'order', 'family', 'species', 'genus', 'no rank'}
         self.assertEqual(ranks, expected_ranks)
 
     def test_get_siblings(self):
@@ -87,9 +71,9 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
-        self.assertEqual(result['count'], 69)
+        self.assertEqual(result['count'], 20)
         ranks = {r['rank'] for r in result['results']}
-        self.assertEqual(ranks, {'species', 'no rank'})
+        self.assertEqual(ranks, {'species'})
 
     def test_get_taxon(self):
         """Test a call to fetch a taxon by id."""
@@ -112,7 +96,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.search_taxa',
-                'params': [{'search_text': 'prefix:rhodobact', 'page': 2, 'page_len': 10}]
+                'params': [{'search_text': 'prefix:rhodobact', 'limit': 10, 'offset': 20}]
             })
         )
         self.assertTrue(resp.ok)

@@ -17,18 +17,8 @@ app.config.API_TITLE = 'Taxonomy RE API'
 app.config.API_DESCRIPTION = 'Taxonomy data API using the relation engine.'
 app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 
+# regex pattern for taxon ids
 id_pattern = r'^ncbi_taxon\/\d+$'
-# Reusable schema that has an ncbi_taxon id property
-id_schema = {
-    'type': 'object',
-    'required': ['id'],
-    'properties': {
-        'id': {
-            'type': 'string',
-            'pattern': id_pattern
-        }
-    }
-}
 
 
 def _get_taxon(params):
@@ -36,37 +26,60 @@ def _get_taxon(params):
     Fetch a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    jsonschema.validate(instance=params, schema=id_schema)
-    _id = params['id']
-    (coll, key) = _id.split('/')
-    return re_api.query("ncbi_fetch_taxon", {'key': key})
+    schema = {
+        'type': 'object',
+        'required': ['id'],
+        'properties': {
+            'id': {'type': 'string', 'pattern': id_pattern}
+        }
+    }
+    jsonschema.validate(instance=params, schema=schema)
+    (coll, key) = params['id'].split('/')
+    params['key'] = key
+    del params['id']
+    return re_api.query("ncbi_fetch_taxon", params)
 
 
-def _get_ancestors(params):
+def _get_lineage(params):
     """
     Fetch ancestor lineage for a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    jsonschema.validate(instance=params, schema=id_schema)
-    _id = params['id']
-    (coll, key) = _id.split('/')
-    return re_api.query("ncbi_taxon_get_ancestors", {'key': key})
+    schema = {
+        'type': 'object',
+        'required': ['id'],
+        'properties': {
+            'id': {'type': 'string', 'pattern': id_pattern},
+            'limit': {'type': 'integer', 'maximum': 1000},
+            'offset': {'type': 'integer', 'maximum': 100000},
+        }
+    }
+    jsonschema.validate(instance=params, schema=schema)
+    (coll, key) = params['id'].split('/')
+    params['key'] = key
+    del params['id']
+    return re_api.query("ncbi_taxon_get_lineage", params)
 
 
-def _get_descendants(params):
+def _get_children(params):
     """
     Fetch the descendants for a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    schema = dict(id_schema)  # dict clone
-    schema['properties']['levels'] = {'type': 'integer'}  # type: ignore
+    schema = {
+        'type': 'object',
+        'required': ['id'],
+        'properties': {
+            'id': {'type': 'string', 'pattern': id_pattern},
+            'limit': {'type': 'integer', 'maximum': 1000},
+            'offset': {'type': 'integer', 'maximum': 100000},
+        }
+    }
     jsonschema.validate(instance=params, schema=schema)
-    _id = params['id']
-    (coll, key) = _id.split('/')
-    query = {'key': key}
-    if params.get('levels'):
-        query['levels'] = params['levels']
-    return re_api.query("ncbi_taxon_get_descendants", query)
+    (coll, key) = params['id'].split('/')
+    params['key'] = key
+    del params['id']
+    return re_api.query("ncbi_taxon_get_children", params)
 
 
 def _get_siblings(params):
@@ -74,9 +87,19 @@ def _get_siblings(params):
     Fetch the siblings for a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    jsonschema.validate(instance=params, schema=id_schema)
-    _id = params['id']
-    (coll, key) = _id.split('/')
+    schema = {
+        'type': 'object',
+        'required': ['id'],
+        'properties': {
+            'id': {'type': 'string', 'pattern': id_pattern},
+            'limit': {'type': 'integer', 'maximum': 1000},
+            'offset': {'type': 'integer', 'maximum': 100000},
+        }
+    }
+    jsonschema.validate(instance=params, schema=schema)
+    (coll, key) = params['id'].split('/')
+    params['key'] = key
+    del params['id']
     return re_api.query("ncbi_taxon_get_siblings", {'key': key})
 
 
@@ -90,22 +113,12 @@ def _search_taxa(params):
         'required': ['search_text'],
         'params': {
             'search_text': {'type': 'string'},
-            'limit': {'type': 'integer'},
-            'offset': {'type': 'integer'}
+            'limit': {'type': 'integer', 'maximum': 1000},
+            'offset': {'type': 'integer', 'maximum': 100000}
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    page = params.get('page', 1) - 1
-    page_len = params.get('page_len', 20)
-    offset = page * 20
-    if page_len > 1000:
-        raise InvalidParams('Page length is larger than 1000')
-    query = {
-        'search_text': params['search_text'],
-        'limit': page_len,
-        'offset': offset
-    }
-    return re_api.query("ncbi_taxon_search_sci_name", query)
+    return re_api.query("ncbi_taxon_search_sci_name", params)
 
 
 @app.route('/', methods=["POST", "GET", "OPTIONS"])
@@ -119,8 +132,8 @@ async def handle_rpc(req):
     body = req.json
     handlers = {
         'taxonomy_re_api.get_taxon': _get_taxon,
-        'taxonomy_re_api.get_ancestors': _get_ancestors,
-        'taxonomy_re_api.get_descendants': _get_descendants,
+        'taxonomy_re_api.get_lineage': _get_lineage,
+        'taxonomy_re_api.get_children': _get_children,
         'taxonomy_re_api.get_siblings': _get_siblings,
         'taxonomy_re_api.search_taxa': _search_taxa,
     }
