@@ -582,7 +582,7 @@ curl -d '{"method": "taxonomy_re_api.search_taxa", "params": {"search_text": "pr
                 "_id": "ncbi_taxon/31491",
                 "_key": "31491",
                 "_rev": "_Y8a6MZS--f",
-                "aliases": [][]
+                "aliases": [],
                 "canonical_scientific_name": ["rhodogorgonales"],
                 "gencode": "1",
                 "rank": "order",
