@@ -66,9 +66,8 @@ curl -d '{"method": "taxonomy_re_api.get_taxon", "params": [{"id": "ncbi_taxon/1
 
 ```json
 [{
-    "jsonrpc": "2.0",
-    "id": "7d802521-10a7-48b2-ab99-105390ef72fa",
-    "result": {
+    "version": "1.1",
+    "result": [{
         "count": 1,
         "cursor_id": null,
         "has_more": false,
@@ -100,7 +99,7 @@ curl -d '{"method": "taxonomy_re_api.get_taxon", "params": [{"id": "ncbi_taxon/1
             "writesExecuted": 0,
             "writesIgnored": 0
         }
-    }
+    }]
 }]
 ```
 
@@ -124,17 +123,25 @@ Request parameters schema (wrapped in an array):
 
 For the response schema, see the **Responses** section above.
 
-### taxonomy_re_api.get_ancestors(params)
+### taxonomy_re_api.get_lineage(params)
 
 Fetch the ancestors for a taxon vertex.
 
 Example request:
 
 ```sh
-curl -d '{"method": "taxonomy_re_api.get_ancestors", "params": [{"id": "ncbi_taxon/100"}]}' <url>
+curl -X POST <url> \
+-d @- << EOF
+{
+  "method": "taxonomy_re_api.get_lineage",
+  "params": [{
+    "id": "ncbi_taxon/100",
+    "limit": 10,
+    "offset": 90
+  }]
+}
+EOF
 ```
-
-Example response:
 
 <details>
 <summary>Example response:</summary>
@@ -142,9 +149,8 @@ Example response:
 
 ```json
 [{
-    "jsonrpc": "2.0",
-    "id": "d6fa9908-849a-4421-931a-f01328a769a9",
-    "result": {
+    "version": "1.1",
+    "result": [{
         "count": 9,
         "cursor_id": null,
         "has_more": false,
@@ -258,7 +264,7 @@ Example response:
             "writesExecuted": 0,
             "writesIgnored": 0
         }
-    }
+    }]
 }]
 ```
 
@@ -275,24 +281,44 @@ Request parameters schema (wrapped in an array):
       "type": "string",
       "title": "Relation engine document ID",
       "examples": ["ncbi_taxon/100"]
-   }
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Maximum number of results to return",
+      "default": 20,
+      "maximum": 1000
+    },
+    "offset": {
+      "type": "integer",
+      "description": "Number of results to skip",
+      "default": 0,
+      "maximum": 100000
+    }
   }
 }
 ```
 
 For the response schema, see the **Responses** section above.
 
-### taxonomy_re_api.get_descendants(params)
+### taxonomy_re_api.get_children(params)
 
-Fetch the descendants for a taxon vertex. Defaults to direct children, but can be specified to return multiple levels of children.
+Fetch the children for a taxon vertex. Defaults to direct children, but can be specified to return multiple levels of children.
 
 Example request:
 
 ```sh
-curl -d '{"method": "taxonomy_re_api.get_descendants", "params": {"id": "ncbi_taxon/28211"}}' <url>
+curl -X POST <url> \
+-d @- << EOF
+{
+  "method": "taxonomy_re_api.get_children",
+  "params": [{
+    "id": "ncbi_taxon/28211",
+    "limit": 20,
+    "offset": 180
+  }]
+}
+EOF
 ```
-
-Example response:
 
 <details>
 <summary>Example response:</summary>
@@ -300,9 +326,8 @@ Example response:
 
 ```json
 [{
-    "jsonrpc": "2.0",
-    "id": "da3803b6-0ca9-412d-adbd-15fa329649a4",
-    "result": {
+    "version": "1.1",
+    "result": [{
         "count": 21,
         "cursor_id": null,
         "has_more": false,
@@ -341,7 +366,7 @@ Example response:
                 "scientific_name": "Kiloniellales"
             }
         ]
-    }
+    }]
 }]
 ```
 
@@ -353,17 +378,23 @@ Request parameters schema (wrapped in an array):
 ```json
 { "type": "object",
   "required": ["id"],
-  "optional": ["levels"],
   "properties": {
     "id": {
       "type": "string",
       "title": "Relation engine document ID",
       "examples": ["ncbi_taxon/100"]
     },
-    "levels": {
+    "limit": {
       "type": "integer",
-      "default": 1,
-      "description": "Number of descendant levels to traverse and return."
+      "description": "Maximum number of results to return",
+      "default": 20,
+      "maximum": 1000
+    },
+    "offset": {
+      "type": "integer",
+      "description": "Number of results to skip",
+      "default": 0,
+      "maximum": 100000
     }
   }
 }
@@ -378,7 +409,17 @@ Fetch the siblings for a taxon.
 Example request:
 
 ```sh
-curl -d '{"method": "taxonomy_re_api.get_siblings", "params": {"id": "ncbi_taxon/100"}}' <url>
+curl -X POST <url> \
+-d @- << EOF
+{
+  "method": "taxonomy_re_api.get_siblings",
+  "params": [{
+    "id": "ncbi_taxon/100",
+    "limit": 10,
+    "offset": 10
+  }]
+}
+EOF
 ```
 
 Example response:
@@ -389,9 +430,8 @@ Example response:
 
 ```json
 {
-    "jsonrpc": "2.0",
-    "id": "ec9e970b-0e4b-4c79-ae5d-4d37e45772a1",
-    "result": {
+    "version": "1.1",
+    "result": [{
         "count": 69,
         "cursor_id": null,
         "has_more": false,
@@ -439,7 +479,7 @@ Example response:
             "writesExecuted": 0,
             "writesIgnored": 0
         }
-    }
+    }]
 }
 ```
 
@@ -456,6 +496,18 @@ Request parameters schema (wrapped in an array):
       "type": "string",
       "title": "Relation engine document ID",
       "examples": ["ncbi_taxon/100"]
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Maximum number of results to return",
+      "default": 20,
+      "maximum": 1000
+    },
+    "offset": {
+      "type": "integer",
+      "description": "Number of results to skip",
+      "default": 0,
+      "maximum": 100000
     }
   }
 }
@@ -490,9 +542,8 @@ Example response:
 
 ```json
 {
-    "jsonrpc": "2.0",
-    "id": "092ad091-7218-4c28-92f4-2aa91a204a13",
-    "result": {
+    "version": "1.1",
+    "result": [{
         "count": 4,
         "cursor_id": null,
         "has_more": false,
@@ -551,7 +602,7 @@ Example response:
             "writesExecuted": 0,
             "writesIgnored": 0
         }
-    }
+    }]
 }
 ```
 
@@ -569,16 +620,17 @@ Request parameters schema (wrapped in an array):
       "title": "Scientific name search query text.",
       "examples": ["prefix:rhodo,|psueodmonas"]
     },
-    "page": {
+    "limit": {
       "type": "integer",
-      "default": 1,
-      "description": "Page number of results to return"
-    },
-    "page_len": {
-      "type": "integer",
+      "description": "Maximum number of results to return",
       "default": 20,
-      "maximum": 1000,
-      "description": "Length of results to return."
+      "maximum": 1000
+    },
+    "offset": {
+      "type": "integer",
+      "description": "Number of results to skip",
+      "default": 0,
+      "maximum": 100000
     }
   }
 }
