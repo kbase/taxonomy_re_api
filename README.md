@@ -422,8 +422,6 @@ curl -X POST <url> \
 EOF
 ```
 
-Example response:
-
 <details>
 <summary>Example response:</summary>
 <div>
@@ -533,8 +531,6 @@ Example request:
 ```sh
 curl -d '{"method": "taxonomy_re_api.search_taxa", "params": {"search_text": "prefix:rhodo,|prefix:psuedo"}}' <url>
 ```
-
-Example response:
 
 <details>
 <summary>Example response:</summary>
