@@ -65,7 +65,7 @@ curl -d '{"method": "taxonomy_re_api.get_taxon", "params": [{"id": "ncbi_taxon/1
 <div>
 
 ```json
-[{
+{
     "version": "1.1",
     "result": [{
         "count": 1,
@@ -100,7 +100,7 @@ curl -d '{"method": "taxonomy_re_api.get_taxon", "params": [{"id": "ncbi_taxon/1
             "writesIgnored": 0
         }
     }]
-}]
+}
 ```
 
 </div>
@@ -148,7 +148,7 @@ EOF
 <div>
 
 ```json
-[{
+{
     "version": "1.1",
     "result": [{
         "count": 9,
@@ -265,7 +265,7 @@ EOF
             "writesIgnored": 0
         }
     }]
-}]
+}
 ```
 
 </div>
@@ -325,7 +325,7 @@ EOF
 <div>
 
 ```json
-[{
+{
     "version": "1.1",
     "result": [{
         "count": 21,
@@ -367,7 +367,7 @@ EOF
             }
         ]
     }]
-}]
+}
 ```
 
 </div>
