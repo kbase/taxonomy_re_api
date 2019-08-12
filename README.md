@@ -16,7 +16,7 @@ The API follows two unusual conventions followed by other KBase APIs:
 
 The RPC `"result"` field has the following JSON schema, representing query results from RE:
 
-The result is always wrapped in an array of one element. This is extraneous but follows KBase convention.
+The result is always wrapped in an array of one element, following KBase convention.
 
 ```json
 { "type": "array",
@@ -25,7 +25,7 @@ The result is always wrapped in an array of one element. This is extraneous but 
   "items": {
     "type": "object",
     "properties": {
-      "count": {"type": "integer", "title": "Result count"},
+      "total_count": {"type": "integer", "title": "Result count"},
       "results": {
         "type": "array",
         "items": {
@@ -68,9 +68,7 @@ curl -d '{"method": "taxonomy_re_api.get_taxon", "params": [{"id": "ncbi_taxon/1
 {
     "version": "1.1",
     "result": [{
-        "count": 1,
-        "cursor_id": null,
-        "has_more": false,
+        "total_count": 1,
         "results": [
             {
                 "NCBI_taxon_id": 100,
@@ -151,9 +149,7 @@ EOF
 {
     "version": "1.1",
     "result": [{
-        "count": 9,
-        "cursor_id": null,
-        "has_more": false,
+        "total_count": 9,
         "results": [
             {
                 "NCBI_taxon_id": 99,
@@ -328,9 +324,7 @@ EOF
 {
     "version": "1.1",
     "result": [{
-        "count": 21,
-        "cursor_id": null,
-        "has_more": false,
+        "total_count": 21,
         "results": [
             {
                 "NCBI_taxon_id": 1191478,
@@ -430,9 +424,7 @@ EOF
 {
     "version": "1.1",
     "result": [{
-        "count": 69,
-        "cursor_id": null,
-        "has_more": false,
+        "total_count": 69,
         "results": [
             {
                 "NCBI_taxon_id": 459519,
@@ -540,9 +532,7 @@ curl -d '{"method": "taxonomy_re_api.search_taxa", "params": {"search_text": "pr
 {
     "version": "1.1",
     "result": [{
-        "count": 4,
-        "cursor_id": null,
-        "has_more": false,
+        "total_count": 4,
         "results": [
             {
                 "NCBI_taxon_id": 1087,
