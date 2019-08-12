@@ -35,7 +35,6 @@ class TestIntegration(unittest.TestCase):
         )
         self.assertTrue(resp.ok)
         body = resp.json()
-        print('lineage', body)
         result = body['result'][0]
         self.assertEqual(len(result['results']), 8)
         ranks = [r['rank'] for r in result['results']]
@@ -54,7 +53,8 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
-        self.assertEqual(result['count'], 20)
+        self.assertEqual(len(result['results']), 20)
+        self.assertEqual(result['total_count'], 21)
         ranks = {r['rank'] for r in result['results']}
         expected_ranks = {'order', 'no rank'}
         self.assertEqual(ranks, expected_ranks)
@@ -71,7 +71,8 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
-        self.assertEqual(result['count'], 20)
+        self.assertEqual(len(result['results']), 20)
+        self.assertEqual(result['total_count'], 69)
         ranks = {r['rank'] for r in result['results']}
         self.assertEqual(ranks, {'species'})
 
@@ -87,7 +88,7 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
-        self.assertEqual(result['count'], 1)
+        self.assertEqual(len(result['results']), 1)
         self.assertEqual(result['results'][0]['_id'], 'ncbi_taxon/100')
 
     def test_search_taxa(self):
@@ -102,6 +103,7 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
-        self.assertEqual(result['count'], 10)
+        self.assertEqual(result['total_count'], 1163)
+        self.assertEqual(len(result['results']), 10)
         for result in result['results']:
             self.assertTrue(result['scientific_name'].lower().startswith('rhodobact'))

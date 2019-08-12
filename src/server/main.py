@@ -58,7 +58,8 @@ def _get_lineage(params):
     (coll, key) = params['id'].split('/')
     params['key'] = key
     del params['id']
-    return re_api.query("ncbi_taxon_get_lineage", params)
+    results = re_api.query("ncbi_taxon_get_lineage", params)
+    return {'stats': results['stats'], 'results': results['results']}
 
 
 def _get_children(params):
@@ -79,7 +80,9 @@ def _get_children(params):
     (coll, key) = params['id'].split('/')
     params['key'] = key
     del params['id']
-    return re_api.query("ncbi_taxon_get_children", params)
+    results = re_api.query("ncbi_taxon_get_children", params)
+    res = results['results'][0]
+    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
 def _get_siblings(params):
@@ -100,7 +103,9 @@ def _get_siblings(params):
     (coll, key) = params['id'].split('/')
     params['key'] = key
     del params['id']
-    return re_api.query("ncbi_taxon_get_siblings", {'key': key})
+    results = re_api.query("ncbi_taxon_get_siblings", {'key': key})
+    res = results['results'][0]
+    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
 def _search_taxa(params):
@@ -118,7 +123,9 @@ def _search_taxa(params):
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    return re_api.query("ncbi_taxon_search_sci_name", params)
+    results = re_api.query("ncbi_taxon_search_sci_name", params)
+    res = results['results'][0]
+    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
 @app.route('/', methods=["POST", "GET", "OPTIONS"])
