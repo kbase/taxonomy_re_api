@@ -298,7 +298,7 @@ For the response schema, see the **Responses** section above.
 
 ### taxonomy_re_api.get_children(params)
 
-Fetch the children for a taxon vertex. Defaults to direct children, but can be specified to return multiple levels of children.
+Fetch the direct descendants for a taxon vertex.
 
 The optional "search_text" parameter can be specified to search on scientific name for the children.
 
