@@ -398,6 +398,10 @@ Request parameters schema (wrapped in an array):
       "description": "Number of results to skip",
       "default": 0,
       "maximum": 100000
+    },
+    "search_text": {
+      "type": "string",
+      "description": "Optional scientific name to search for the children"
     }
   }
 }
