@@ -300,6 +300,14 @@ For the response schema, see the **Responses** section above.
 
 Fetch the children for a taxon vertex. Defaults to direct children, but can be specified to return multiple levels of children.
 
+The optional "search_text" parameter can be specified to search on scientific name for the children.
+
+Within `"search_text"`, you can use this syntax to refine the results:
+* Separate search terms by comma: "rhodobacter,pseudomonas"
+* To search against a term **OR** another term, use a "|" prefix: "rhodobacter,|pseudomonas"
+* To search by prefix, use the "prefix:" prefix: "prefix:rhodo,|prefix:pseudo"
+* To exclude a term, use `"-term"`
+
 Example request:
 
 ```sh
@@ -310,7 +318,8 @@ curl -X POST <url> \
   "params": [{
     "id": "ncbi_taxon/28211",
     "limit": 20,
-    "offset": 180
+    "offset": 180,
+    "search_text": ""
   }]
 }
 EOF
@@ -513,6 +522,7 @@ Within `"search_text"`, you can use this syntax to refine the results:
 * Separate search terms by comma: "rhodobacter,pseudomonas"
 * To search against a term **OR** another term, use a "|" prefix: "rhodobacter,|pseudomonas"
 * To search by prefix, use the "prefix:" prefix: "prefix:rhodo,|prefix:pseudo"
+* To exclude a term, use `"-term"`
 
 Results are paginated to 20 per page by default. You can pass a `"page"` parameter to get an offset of the results. This parameter defaults to `1`, meaning fetch the first 20 results. Setting "page" to 5 would give you results 101 through 120.
 
