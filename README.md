@@ -317,7 +317,7 @@ curl -X POST <url> \
   "method": "taxonomy_re_api.get_children",
   "params": [{
     "id": "ncbi_taxon/28211",
-    "limit": 20,
+    "limit": 3,
     "offset": 180,
     "search_text": ""
   }]
@@ -422,7 +422,7 @@ curl -X POST <url> \
   "method": "taxonomy_re_api.get_siblings",
   "params": [{
     "id": "ncbi_taxon/100",
-    "limit": 10,
+    "limit": 3,
     "offset": 10
   }]
 }
