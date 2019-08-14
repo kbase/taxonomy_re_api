@@ -107,3 +107,15 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(len(result['results']), 10)
         for result in result['results']:
             self.assertTrue(result['scientific_name'].lower().startswith('rhodobact'))
+
+    def test_get_associated_ws_objects(self):
+        """Test a call to get associated workspace objects from a taxon id."""
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'taxonomy_re_api.get_associated_ws_objects',
+                'params': [{'taxon_id': 'ncbi_taxon/562'}]
+            })
+        )
+        print('associated objects response', resp.text)
+        self.assertTrue(resp.ok)
