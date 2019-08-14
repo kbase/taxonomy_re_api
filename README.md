@@ -121,6 +121,272 @@ Request parameters schema (wrapped in an array):
 
 For the response schema, see the **Responses** section above.
 
+### taxonomy_re_api.get_associated_ws_objects(params)
+
+Fetch all workspace objects associated with a given taxon.
+
+Example request:
+
+```sh
+curl -d '{"method": "taxonomy_re_api.get_associated_ws_objects", "params": [{"taxon_id": "ncbi_taxon/562"}]}' <url>
+```
+
+<details>
+<summary>Example response:</summary>
+<div>
+
+```json
+{
+  "version": "1.1",
+  "result": [{
+    "results": [
+      {
+        "edge": {
+          "_id": "wsfull_obj_version_has_taxon/01ccde39e26cc5f7",
+          "assigned_by": "assn1",
+          "updated_at": 1565811476862
+        },
+        "taxon": {
+          "_id": "ncbi_taxon/1",
+          "rank": "rank1",
+          "scientific_name": "sciname1",
+          "updated_at": 1565811476636
+        }
+      },
+      {
+        "edge": {
+          "_id": "wsfull_obj_version_has_taxon/0b9f84ae366ef8e2",
+          "assigned_by": "assn2",
+          "updated_at": 1565811476862
+        },
+        "taxon": {
+          "_id": "ncbi_taxon/2",
+          "rank": "rank2",
+          "scientific_name": "sciname2",
+          "updated_at": 1565811476637
+        }
+      }
+    ],
+    "stats": {
+      "executionTime": 0.123,
+      "filtered": 0,
+      "httpRequests": 0,
+      "scannedFull": 0,
+      "scannedIndex": 1,
+      "writesExecuted": 0,
+      "writesIgnored": 0
+    }
+  }]
+}
+```
+
+</div>
+</details>
+
+Request parameters schema (wrapped in an array):
+
+```json
+{ "type": "object",
+  "required": ["taxon_id"],
+  "properties": {
+    "taxon_id": {
+      "type": "string",
+      "title": "Relation engine document ID of a taxon vertex",
+      "examples": ["ncbi_taxon/100"]
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Maximum number of results to return",
+      "default": 20,
+      "maximum": 1000
+    },
+    "offset": {
+      "type": "integer",
+      "description": "Number of results to skip",
+      "default": 0,
+      "maximum": 100000
+    }
+  }
+}
+```
+
+For the response schema, see the **Responses** section above.
+
+### taxonomy_re_api.get_lineage(params)
+
+Fetch the ancestors for a taxon vertex.
+
+Example request:
+
+```sh
+curl -X POST <url> \
+-d @- << EOF
+{
+  "method": "taxonomy_re_api.get_lineage",
+  "params": [{
+    "id": "ncbi_taxon/100",
+    "limit": 10,
+    "offset": 90
+  }]
+}
+EOF
+```
+
+<details>
+<summary>Example response:</summary>
+<div>
+
+```json
+{
+    "version": "1.1",
+    "result": [{
+        "total_count": 9,
+        "results": [
+            {
+                "NCBI_taxon_id": 99,
+                "_id": "ncbi_taxon/99",
+                "_key": "99",
+                "_rev": "_Y8a52ga--h",
+                "aliases": [],
+                "canonical_scientific_name": ["ancylobacter"],
+                "gencode": "11",
+                "rank": "genus",
+                "scientific_name": "Ancylobacter"
+            },
+            {
+                "NCBI_taxon_id": 335928,
+                "_id": "ncbi_taxon/335928",
+                "_key": "335928",
+                "_rev": "_Y8bDLTy-_X",
+                "aliases": [],
+                "canonical_scientific_name": ["xanthobacteraceae"],
+                "gencode": "11",
+                "rank": "family",
+                "scientific_name": "Xanthobacteraceae"
+            },
+            {
+                "NCBI_taxon_id": 356,
+                "_id": "ncbi_taxon/356",
+                "_key": "356",
+                "_rev": "_Y8a52g6--J",
+                "aliases": [],
+                "canonical_scientific_name": ["rhizobiales"],
+                "gencode": "11",
+                "rank": "order",
+                "scientific_name": "Rhizobiales"
+            },
+            {
+                "NCBI_taxon_id": 28211,
+                "_id": "ncbi_taxon/28211",
+                "_key": "28211",
+                "_rev": "_Y8a6Mdm--J",
+                "aliases": [],
+                "canonical_scientific_name": ["alphaproteobacteria"],
+                "gencode": "11",
+                "rank": "class",
+                "scientific_name": "Alphaproteobacteria"
+            },
+            {
+                "NCBI_taxon_id": 1224,
+                "_id": "ncbi_taxon/1224",
+                "_key": "1224",
+                "_rev": "_Y8a52g---p",
+                "aliases": [],
+                "canonical_scientific_name": ["proteobacteria"],
+                "gencode": "11",
+                "rank": "phylum",
+                "scientific_name": "Proteobacteria"
+            },
+            {
+                "NCBI_taxon_id": 2,
+                "_id": "ncbi_taxon/2",
+                "_key": "2",
+                "_rev": "_Y8a52f6--L",
+                "aliases": [],
+                "canonical_scientific_name": ["bacteria"],
+                "gencode": "11",
+                "rank": "superkingdom",
+                "scientific_name": "Bacteria"
+            },
+            {
+                "NCBI_taxon_id": 131567,
+                "_id": "ncbi_taxon/131567",
+                "_key": "131567",
+                "_rev": "_Y8a9OHm--l",
+                "aliases": [],
+                "canonical_scientific_name": ["cellular", "organisms"],
+                "gencode": "1",
+                "rank": "no rank",
+                "scientific_name": "cellular organisms"
+            },
+            {
+                "NCBI_taxon_id": 1,
+                "_id": "ncbi_taxon/1",
+                "_key": "1",
+                "_rev": "_Y8a52em-_b",
+                "aliases": [],
+                "canonical_scientific_name": ["root"],
+                "gencode": "1",
+                "rank": "no rank",
+                "scientific_name": "root"
+            },
+            {
+                "NCBI_taxon_id": 1,
+                "_id": "ncbi_taxon/1",
+                "_key": "1",
+                "_rev": "_Y8a52em-_b",
+                "aliases": [],
+                "canonical_scientific_name": ["root"],
+                "gencode": "1",
+                "rank": "no rank",
+                "scientific_name": "root"
+            }
+        ],
+        "stats": {
+            "executionTime": 0.1159160137,
+            "filtered": 0,
+            "httpRequests": 61,
+            "scannedFull": 0,
+            "scannedIndex": 9,
+            "writesExecuted": 0,
+            "writesIgnored": 0
+        }
+    }]
+}
+```
+
+</div>
+</details>
+
+Request parameters schema (wrapped in an array):
+
+```json
+{ "type": "object",
+  "required": ["id"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Relation engine document ID",
+      "examples": ["ncbi_taxon/100"]
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Maximum number of results to return",
+      "default": 20,
+      "maximum": 1000
+    },
+    "offset": {
+      "type": "integer",
+      "description": "Number of results to skip",
+      "default": 0,
+      "maximum": 100000
+    }
+  }
+}
+```
+
+For the response schema, see the **Responses** section above.
+
 ### taxonomy_re_api.get_lineage(params)
 
 Fetch the ancestors for a taxon vertex.
