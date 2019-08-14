@@ -10,9 +10,10 @@ class REError(Exception):
 
     def __init__(self, resp):
         """Takes a requests response object."""
+        self.resp_json = None
         try:
             body = resp.json()
             self.resp_json = body
         except ValueError:
-            self.resp_json = None
+            pass
         self.resp_text = resp.text

@@ -128,6 +128,26 @@ def _search_taxa(params):
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
+def _get_associated_ws_objects(params):
+    """
+    Get any versioned workspace objects associated with a taxon.
+    """
+    schema = {
+        'type': 'object',
+        'required': ['taxon_id'],
+        'params': {
+            'taxon_id': {'type': 'string', 'pattern': id_pattern},
+            'limit': {'type': 'integer', 'maximum': 1000},
+            'offset': {'type': 'integer', 'maximum': 100000}
+        }
+    }
+    jsonschema.validate(instance=params, schema=schema)
+    params['id'] = params['taxon_id']
+    del params['taxon_id']
+    results = re_api.query("wsfull_get_associated_taxa", params)
+    return {'stats': results['stats'], 'results': results['results']}
+
+
 @app.route('/', methods=["POST", "GET", "OPTIONS"])
 async def handle_rpc(req):
     """Handle a JSON RPC 1.1 request."""
@@ -143,6 +163,7 @@ async def handle_rpc(req):
         'taxonomy_re_api.get_children': _get_children,
         'taxonomy_re_api.get_siblings': _get_siblings,
         'taxonomy_re_api.search_taxa': _search_taxa,
+        'taxonomy_re_api.get_associated_ws_objects': _get_associated_ws_objects,
     }
     if not body or not body.get('method'):
         raise InvalidParams("Missing method name")
@@ -204,7 +225,7 @@ async def re_api_error(req, err):
             'name': 'relation_engine_error',
             'code': 400,
             'message': 'Relation engine API error',
-            'error': req.resp_json or req.resp_text,
+            'error': err.resp_json or err.resp_text,
         }
     }
     return _rpc_resp(req, resp, status=400)
