@@ -125,10 +125,21 @@ For the response schema, see the **Responses** section above.
 
 Fetch all workspace objects associated with a given taxon.
 
+This endpoint is authorization over workspace objects by passing a KBase token via the `Authorization` header.
+
 Example request:
 
 ```sh
 curl -d '{"method": "taxonomy_re_api.get_associated_ws_objects", "params": [{"taxon_id": "ncbi_taxon/562"}]}' <url>
+curl -X POST -H "Authorization: xyz" <url> \
+-d @- << EOF
+{
+  "method": "taxonomy_re_api.get_associated_ws_objects",
+  "params": [{
+    "taxon_id": "ncbi_taxon/562"
+  }]
+}
+EOF
 ```
 
 <details>
