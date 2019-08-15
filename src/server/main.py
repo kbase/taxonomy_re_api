@@ -21,7 +21,7 @@ app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 id_pattern = r'^ncbi_taxon\/\d+$'
 
 
-def _get_taxon(params):
+def _get_taxon(params, headers):
     """
     Fetch a taxon by ID.
     Returns (result, err), one of which will be None.
@@ -40,7 +40,7 @@ def _get_taxon(params):
     return re_api.query("ncbi_fetch_taxon", params)
 
 
-def _get_lineage(params):
+def _get_lineage(params, headers):
     """
     Fetch ancestor lineage for a taxon by ID.
     Returns (result, err), one of which will be None.
@@ -62,7 +62,7 @@ def _get_lineage(params):
     return {'stats': results['stats'], 'results': results['results']}
 
 
-def _get_children(params):
+def _get_children(params, headers):
     """
     Fetch the descendants for a taxon by ID.
     Returns (result, err), one of which will be None.
@@ -85,7 +85,7 @@ def _get_children(params):
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
-def _get_siblings(params):
+def _get_siblings(params, headers):
     """
     Fetch the siblings for a taxon by ID.
     Returns (result, err), one of which will be None.
@@ -108,7 +108,7 @@ def _get_siblings(params):
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
-def _search_taxa(params):
+def _search_taxa(params, headers):
     """
     Search for a taxon vertex by scientific name.
     Returns (result, err), one of which will be None.
@@ -128,7 +128,7 @@ def _search_taxa(params):
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
-def _get_associated_ws_objects(params):
+def _get_associated_ws_objects(params, headers):
     """
     Get any versioned workspace objects associated with a taxon.
     """
@@ -144,7 +144,7 @@ def _get_associated_ws_objects(params):
     jsonschema.validate(instance=params, schema=schema)
     params['id'] = params['taxon_id']
     del params['taxon_id']
-    results = re_api.query("wsfull_get_associated_taxa", params)
+    results = re_api.query("ncbi_taxon_get_associated_ws_objects", params, headers.get('Authorization'))
     return {'stats': results['stats'], 'results': results['results']}
 
 
@@ -173,7 +173,7 @@ async def handle_rpc(req):
     params = body.get('params')
     if not isinstance(params, list) or not params:
         raise InvalidParams(f"Method params should be a single-element array. It is: {params}")
-    result = meth(params[0])
+    result = meth(params[0], req.headers)
     resp = {'result': [result]}
     return _rpc_resp(req, resp)
 
