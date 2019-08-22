@@ -74,7 +74,7 @@ module taxonomy_re_api {
         stats - Query execution information from ArangoDB.
         results - array of objects of results.
     */
-    typdef structure {
+    typedef structure {
         UnspecifiedObject stats;
         list<UnspecifiedObject> results;
     } Results;
