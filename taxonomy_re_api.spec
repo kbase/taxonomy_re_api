@@ -68,7 +68,6 @@ module taxonomy_re_api {
         int offset;
     } GetAssociatedWsObjectsParams;
 
-
     /*
     Generic results for each method.
         stats - Query execution information from ArangoDB.
@@ -97,4 +96,4 @@ module taxonomy_re_api {
     /* Get all workspace objects associated with a taxon. */
     funcdef get_associated_ws_objects(GetAssociatedWsObjectsParams params)
         returns (Results results) authentication optional;
-}
+};
