@@ -1,6 +1,7 @@
 """
 Main HTTP server entrypoint.
 """
+import time
 import sanic
 import jsonschema
 import traceback
@@ -30,13 +31,14 @@ def _get_taxon(params, headers):
         'type': 'object',
         'required': ['id'],
         'properties': {
-            'id': {'type': 'string', 'pattern': id_pattern}
+            'id': {'type': 'string', 'pattern': id_pattern},
+            'ts': {'type': 'integer', 'minimum': 0},
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    (coll, key) = params['id'].split('/')
-    params['key'] = key
-    del params['id']
+    (coll, _id) = params['id'].split('/')
+    params['id'] = _id
+    params['ts'] = params.get('ts', int(time.time() * 1000))
     return re_api.query("ncbi_fetch_taxon", params)
 
 
@@ -52,12 +54,13 @@ def _get_lineage(params, headers):
             'id': {'type': 'string', 'pattern': id_pattern},
             'limit': {'type': 'integer', 'maximum': 1000},
             'offset': {'type': 'integer', 'maximum': 100000},
+            'ts': {'type': 'integer', 'minimum': 0},
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    (coll, key) = params['id'].split('/')
-    params['key'] = key
-    del params['id']
+    (coll, _id) = params['id'].split('/')
+    params['id'] = _id
+    params['ts'] = params.get('ts', int(time.time() * 1000))
     results = re_api.query("ncbi_taxon_get_lineage", params)
     return {'stats': results['stats'], 'results': results['results']}
 
@@ -74,12 +77,13 @@ def _get_children(params, headers):
             'id': {'type': 'string', 'pattern': id_pattern},
             'limit': {'type': 'integer', 'maximum': 1000},
             'offset': {'type': 'integer', 'maximum': 100000},
+            'ts': {'type': 'integer', 'minimum': 0},
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    (coll, key) = params['id'].split('/')
-    params['key'] = key
-    del params['id']
+    (coll, _id) = params['id'].split('/')
+    params['id'] = _id
+    params['ts'] = params.get('ts', int(time.time() * 1000))
     results = re_api.query("ncbi_taxon_get_children", params)
     res = results['results'][0]
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
@@ -97,13 +101,14 @@ def _get_siblings(params, headers):
             'id': {'type': 'string', 'pattern': id_pattern},
             'limit': {'type': 'integer', 'maximum': 1000},
             'offset': {'type': 'integer', 'maximum': 100000},
+            'ts': {'type': 'integer', 'minimum': 0},
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    (coll, key) = params['id'].split('/')
-    params['key'] = key
-    del params['id']
-    results = re_api.query("ncbi_taxon_get_siblings", {'key': key})
+    (coll, _id) = params['id'].split('/')
+    params['id'] = _id
+    params['ts'] = params.get('ts', int(time.time() * 1000))
+    results = re_api.query("ncbi_taxon_get_siblings", params)
     res = results['results'][0]
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
@@ -119,10 +124,12 @@ def _search_taxa(params, headers):
         'params': {
             'search_text': {'type': 'string'},
             'limit': {'type': 'integer', 'maximum': 1000},
-            'offset': {'type': 'integer', 'maximum': 100000}
+            'offset': {'type': 'integer', 'maximum': 100000},
+            'ts': {'type': 'integer', 'minimum': 0},
         }
     }
     jsonschema.validate(instance=params, schema=schema)
+    params['ts'] = params.get('ts', int(time.time() * 1000))
     results = re_api.query("ncbi_taxon_search_sci_name", params)
     res = results['results'][0]
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
@@ -138,12 +145,12 @@ def _get_associated_ws_objects(params, headers):
         'params': {
             'taxon_id': {'type': 'string', 'pattern': id_pattern},
             'limit': {'type': 'integer', 'maximum': 1000},
-            'offset': {'type': 'integer', 'maximum': 100000}
+            'offset': {'type': 'integer', 'maximum': 100000},
+            'ts': {'type': 'integer', 'minimum': 0},
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    params['id'] = params['taxon_id']
-    del params['taxon_id']
+    params['ts'] = params.get('ts', int(time.time() * 1000))
     results = re_api.query("ncbi_taxon_get_associated_ws_objects", params, headers.get('Authorization'))
     return {'stats': results['stats'], 'results': results['results']}
 

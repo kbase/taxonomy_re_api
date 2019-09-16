@@ -54,7 +54,7 @@ class TestIntegration(unittest.TestCase):
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(len(result['results']), 20)
-        self.assertEqual(result['total_count'], 21)
+        self.assertTrue(result['total_count'] > 20)
         ranks = {r['rank'] for r in result['results']}
         expected_ranks = {'order', 'no rank'}
         self.assertEqual(ranks, expected_ranks)
@@ -72,7 +72,7 @@ class TestIntegration(unittest.TestCase):
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(len(result['results']), 20)
-        self.assertEqual(result['total_count'], 69)
+        self.assertTrue(result['total_count'] > 20)
         ranks = {r['rank'] for r in result['results']}
         self.assertEqual(ranks, {'species'})
 
@@ -89,7 +89,7 @@ class TestIntegration(unittest.TestCase):
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(len(result['results']), 1)
-        self.assertEqual(result['results'][0]['_id'], 'ncbi_taxon/100')
+        self.assertEqual(result['results'][0]['id'], '100')
 
     def test_search_taxa(self):
         """Test a call to search taxa by scientific name."""
@@ -103,10 +103,10 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
-        self.assertEqual(result['total_count'], 1163)
+        self.assertTrue(result['total_count'] > 10)
         self.assertEqual(len(result['results']), 10)
         for result in result['results']:
-            self.assertTrue(result['scientific_name'].lower().startswith('rhodobact'))
+            self.assertTrue('rhodobact' in result['scientific_name'].lower())
 
     def test_get_associated_ws_objects(self):
         """Test a call to get associated workspace objects from a taxon id."""
