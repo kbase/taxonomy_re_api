@@ -150,7 +150,8 @@ def _get_associated_ws_objects(params, headers):
     params['taxon_id'] = _get_id(params['taxon_id'])
     params['ts'] = params.get('ts', int(time.time() * 1000))
     results = re_api.query("ncbi_taxon_get_associated_ws_objects", params, headers.get('Authorization'))
-    return {'stats': results['stats'], 'results': results['results']}
+    res = results['results'][0]
+    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
 @app.route('/', methods=["POST", "GET", "OPTIONS"])
