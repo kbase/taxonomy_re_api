@@ -36,7 +36,7 @@ def _get_taxon(params, headers):
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    (coll, _id) = params['id'].split('/')
+    _id = _get_id(params['id'])
     params['id'] = _id
     params['ts'] = params.get('ts', int(time.time() * 1000))
     return re_api.query("ncbi_fetch_taxon", params)
@@ -58,8 +58,7 @@ def _get_lineage(params, headers):
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    (coll, _id) = params['id'].split('/')
-    params['id'] = _id
+    params['id'] = _get_id(params['id'])
     params['ts'] = params.get('ts', int(time.time() * 1000))
     results = re_api.query("ncbi_taxon_get_lineage", params)
     return {'stats': results['stats'], 'results': results['results']}
@@ -81,8 +80,7 @@ def _get_children(params, headers):
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    (coll, _id) = params['id'].split('/')
-    params['id'] = _id
+    params['id'] = _get_id(params['id'])
     params['ts'] = params.get('ts', int(time.time() * 1000))
     results = re_api.query("ncbi_taxon_get_children", params)
     res = results['results'][0]
@@ -105,8 +103,7 @@ def _get_siblings(params, headers):
         }
     }
     jsonschema.validate(instance=params, schema=schema)
-    (coll, _id) = params['id'].split('/')
-    params['id'] = _id
+    params['id'] = _get_id(params['id'])
     params['ts'] = params.get('ts', int(time.time() * 1000))
     results = re_api.query("ncbi_taxon_get_siblings", params)
     res = results['results'][0]
@@ -150,6 +147,7 @@ def _get_associated_ws_objects(params, headers):
         }
     }
     jsonschema.validate(instance=params, schema=schema)
+    params['taxon_id'] = _get_id(params['taxon_id'])
     params['ts'] = params.get('ts', int(time.time() * 1000))
     results = re_api.query("ncbi_taxon_get_associated_ws_objects", params, headers.get('Authorization'))
     return {'stats': results['stats'], 'results': results['results']}
@@ -283,6 +281,12 @@ def _rpc_resp(req, resp, status=200):
     if req.json and req.json.get('id'):
         resp['id'] = req.json['id']
     return sanic.response.json(resp, status)
+
+
+def _get_id(param_id):
+    """Get the document id portion of the ID parameter."""
+    (coll, _id) = param_id.split('/')
+    return _id
 
 
 if __name__ == '__main__':
