@@ -50,6 +50,12 @@ The result is always wrapped in an array of one element, following KBase convent
 
 "_id" is unique across the database, while "_key" is only unique within its collection.
 
+### Timestamp parameter
+
+Every method for this API can take a `ts` parameter, representing the Unix
+epoch timestamp (in milliseconds) of when the document was active in the
+database. This is optional and defaults to the current time.
+
 ### taxonomy_re_api.get_taxon(params)
 
 Fetch the document data for a single taxon by ID.
@@ -110,6 +116,7 @@ Request parameters schema (wrapped in an array):
 { "type": "object",
   "required": ["id"],
   "properties": {
+    "ts": {"type": "integer", "title": "Document timestamp", "description": "Defaults to now."},
     "id": {
       "type": "string",
       "title": "Relation engine document ID",
@@ -200,6 +207,7 @@ Request parameters schema (wrapped in an array):
 { "type": "object",
   "required": ["taxon_id"],
   "properties": {
+    "ts": {"type": "integer", "title": "Document timestamp", "description": "Defaults to now."},
     "taxon_id": {
       "type": "string",
       "title": "Relation engine document ID of a taxon vertex",
@@ -375,6 +383,7 @@ Request parameters schema (wrapped in an array):
 { "type": "object",
   "required": ["id"],
   "properties": {
+    "ts": {"type": "integer", "title": "Document timestamp", "description": "Defaults to now."},
     "id": {
       "type": "string",
       "title": "Relation engine document ID",
@@ -550,6 +559,7 @@ Request parameters schema (wrapped in an array):
 { "type": "object",
   "required": ["id"],
   "properties": {
+    "ts": {"type": "integer", "title": "Document timestamp", "description": "Defaults to now."},
     "id": {
       "type": "string",
       "title": "Relation engine document ID",
@@ -659,6 +669,7 @@ Request parameters schema (wrapped in an array):
 { "type": "object",
   "required": ["id"],
   "properties": {
+    "ts": {"type": "integer", "title": "Document timestamp", "description": "Defaults to now."},
     "id": {
       "type": "string",
       "title": "Relation engine document ID",
@@ -772,6 +783,7 @@ Request parameters schema (wrapped in an array):
 { "type": "object",
   "required": ["id"],
   "properties": {
+    "ts": {"type": "integer", "title": "Document timestamp", "description": "Defaults to now."},
     "id": {
       "type": "string",
       "title": "Relation engine document ID",
@@ -892,6 +904,7 @@ Request parameters schema (wrapped in an array):
 { "type": "object",
   "required": ["search_text"],
   "properties": {
+    "ts": {"type": "integer", "title": "Document timestamp", "description": "Defaults to now."},
     "search_text": {
       "type": "string",
       "title": "Scientific name search query text.",
