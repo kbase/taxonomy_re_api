@@ -1,7 +1,7 @@
 type: object
 required: [taxon_id, taxon_ns]
 additionalProperties: false
-params:
+properties:
   taxon_id:
     type: string
     title: Taxonomy identifier
