@@ -1,0 +1,21 @@
+type: object
+required: [taxon_id, taxon_ns]
+additionalProperties: false
+params:
+  taxon_id:
+    type: string
+    title: Taxonomy identifier
+  taxon_ns:
+    type: string
+    enum: ['ncbi_taxonomy']
+    title: Taxonomy namespace
+  ts:
+    type: integer
+    minimum: 0
+    description: Defaults to now
+  limit:
+    type: integer
+    maximum: 1000
+  offset:
+    type: integer
+    maximum: 100000

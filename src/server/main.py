@@ -8,18 +8,16 @@ import traceback
 from jsonschema.exceptions import ValidationError
 
 from src.utils.config import get_config
+from src.utils.schemas import load_schemas
 from src.utils import re_api
 from src.exceptions import InvalidParams, REError
 
 _CONF = get_config()
+_SCHEMAS = load_schemas()
 app = sanic.Sanic()
-app.config.API_VERSION = '0.1'
 app.config.API_TITLE = 'Taxonomy RE API'
 app.config.API_DESCRIPTION = 'Taxonomy data API using the relation engine.'
 app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
-
-# regex pattern for taxon ids
-id_pattern = r'^ncbi_taxon\/\d+$'
 
 
 def _get_taxon(params, headers):
@@ -27,19 +25,15 @@ def _get_taxon(params, headers):
     Fetch a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    schema = {
-        'type': 'object',
-        'required': ['id'],
-        'properties': {
-            'id': {'type': 'string', 'pattern': id_pattern},
-            'ts': {'type': 'integer', 'minimum': 0},
-        }
-    }
+    schema = _SCHEMAS['get_taxon']
     jsonschema.validate(instance=params, schema=schema)
-    _id = _get_id(params['id'])
-    params['id'] = _id
     params['ts'] = params.get('ts', int(time.time() * 1000))
-    return re_api.query("ncbi_fetch_taxon", params)
+    ns = params['ns']
+    del params['ns']
+    results = re_api.query("ncbi_fetch_taxon", params)
+    for res in results['results']:
+        res['ns'] = ns
+    return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
 
 
 def _get_lineage(params, headers):
@@ -47,21 +41,15 @@ def _get_lineage(params, headers):
     Fetch ancestor lineage for a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    schema = {
-        'type': 'object',
-        'required': ['id'],
-        'properties': {
-            'id': {'type': 'string', 'pattern': id_pattern},
-            'limit': {'type': 'integer', 'maximum': 1000},
-            'offset': {'type': 'integer', 'maximum': 100000},
-            'ts': {'type': 'integer', 'minimum': 0},
-        }
-    }
+    schema = _SCHEMAS['get_lineage']
     jsonschema.validate(instance=params, schema=schema)
-    params['id'] = _get_id(params['id'])
     params['ts'] = params.get('ts', int(time.time() * 1000))
+    ns = params['ns']
+    del params['ns']
     results = re_api.query("ncbi_taxon_get_lineage", params)
-    return {'stats': results['stats'], 'results': results['results']}
+    for res in results['results']:
+        res['ns'] = ns
+    return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
 
 
 def _get_children(params, headers):
@@ -69,22 +57,16 @@ def _get_children(params, headers):
     Fetch the descendants for a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    schema = {
-        'type': 'object',
-        'required': ['id'],
-        'properties': {
-            'id': {'type': 'string', 'pattern': id_pattern},
-            'limit': {'type': 'integer', 'maximum': 1000},
-            'offset': {'type': 'integer', 'maximum': 100000},
-            'ts': {'type': 'integer', 'minimum': 0},
-        }
-    }
+    schema = _SCHEMAS['get_children']
     jsonschema.validate(instance=params, schema=schema)
-    params['id'] = _get_id(params['id'])
     params['ts'] = params.get('ts', int(time.time() * 1000))
+    ns = params['ns']
+    del params['ns']
     results = re_api.query("ncbi_taxon_get_children", params)
     res = results['results'][0]
-    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
+    for res in results['results']:
+        res['ns'] = ns
+    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results'], 'ts': params['ts']}
 
 
 def _get_siblings(params, headers):
@@ -92,22 +74,16 @@ def _get_siblings(params, headers):
     Fetch the siblings for a taxon by ID.
     Returns (result, err), one of which will be None.
     """
-    schema = {
-        'type': 'object',
-        'required': ['id'],
-        'properties': {
-            'id': {'type': 'string', 'pattern': id_pattern},
-            'limit': {'type': 'integer', 'maximum': 1000},
-            'offset': {'type': 'integer', 'maximum': 100000},
-            'ts': {'type': 'integer', 'minimum': 0},
-        }
-    }
+    schema = _SCHEMAS['get_siblings']
     jsonschema.validate(instance=params, schema=schema)
-    params['id'] = _get_id(params['id'])
     params['ts'] = params.get('ts', int(time.time() * 1000))
+    ns = params['ns']
+    del params['ns']
     results = re_api.query("ncbi_taxon_get_siblings", params)
     res = results['results'][0]
-    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
+    for res in results['results']:
+        res['ns'] = ns
+    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results'], 'ts': params['ts']}
 
 
 def _search_taxa(params, headers):
@@ -115,42 +91,31 @@ def _search_taxa(params, headers):
     Search for a taxon vertex by scientific name.
     Returns (result, err), one of which will be None.
     """
-    schema = {
-        'type': 'object',
-        'required': ['search_text'],
-        'params': {
-            'search_text': {'type': 'string'},
-            'limit': {'type': 'integer', 'maximum': 1000},
-            'offset': {'type': 'integer', 'maximum': 100000},
-            'ts': {'type': 'integer', 'minimum': 0},
-        }
-    }
+    schema = _SCHEMAS['search_taxa']
     jsonschema.validate(instance=params, schema=schema)
     params['ts'] = params.get('ts', int(time.time() * 1000))
+    ns = params['ns']
+    del params['ns']
     results = re_api.query("ncbi_taxon_search_sci_name", params)
     res = results['results'][0]
-    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
+    for res in results['results']:
+        res['ns'] = ns
+    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results'], 'ts': params['ts']}
 
 
 def _get_associated_ws_objects(params, headers):
     """
     Get any versioned workspace objects associated with a taxon.
     """
-    schema = {
-        'type': 'object',
-        'required': ['taxon_id'],
-        'params': {
-            'taxon_id': {'type': 'string', 'pattern': id_pattern},
-            'limit': {'type': 'integer', 'maximum': 1000},
-            'offset': {'type': 'integer', 'maximum': 100000},
-            'ts': {'type': 'integer', 'minimum': 0},
-        }
-    }
+    schema = _SCHEMAS['get_associated_ws_objects']
     jsonschema.validate(instance=params, schema=schema)
-    params['taxon_id'] = _get_id(params['taxon_id'])
     params['ts'] = params.get('ts', int(time.time() * 1000))
+    ns = params['taxon_ns']
+    del params['taxon_ns']
     results = re_api.query("ncbi_taxon_get_associated_ws_objects", params, headers.get('Authorization'))
     res = results['results'][0]
+    for res in results['results']:
+        res['ns'] = ns
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
@@ -282,12 +247,6 @@ def _rpc_resp(req, resp, status=200):
     if req.json and req.json.get('id'):
         resp['id'] = req.json['id']
     return sanic.response.json(resp, status)
-
-
-def _get_id(param_id):
-    """Get the document id portion of the ID parameter."""
-    (coll, _id) = param_id.split('/')
-    return _id
 
 
 if __name__ == '__main__':

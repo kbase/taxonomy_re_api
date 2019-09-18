@@ -2,7 +2,7 @@
   "function_places": {},
   "functions": {},
   "impl_file_path": "",
-  "module_name": "relation_engine_sync",
+  "module_name": "taxonomy_re_api",
   "sdk_git_commit": "0",
   "sdk_version": "0",
   "spec_files": [{"content": "", "is_main": 1}]

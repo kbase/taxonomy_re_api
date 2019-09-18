@@ -1,0 +1,21 @@
+type: object
+required: [search_text, ns]
+additionalProperties: false
+properties:
+  search_text: 
+    type: string
+    title: Search text
+  ns:
+    type: string
+    title: Namespace
+    enum: ['ncbi_taxonomy']
+  ts:
+    type: integer
+    minimum: 0
+    description: Defaults to now
+  limit:
+    type: integer
+    maximum: 1000
+  offset:
+    type: integer
+    maximum: 100000

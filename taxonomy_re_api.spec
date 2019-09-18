@@ -2,31 +2,35 @@ module taxonomy_re_api {
 
     /*
     Parameters for get_taxon.
+        ts - optional - fetch the document with this active timestamp (defaults to now)
         id - required - ID of the taxon node, such as "ncbi_taxon/123"
     */
     typedef structure {
+        int ts;
         string id;
     } GetTaxonParams;
 
     /*
     Parameters for get_lineage.
+        ts - optional - fetch documents with this active timestamp (defaults to now)
         id - required - ID of the taxon node, such as "ncbi_taxon/123"
         limit - optional - number of results to return (defaults to 20)
         offset - optional - number of results to skip (defaults to 0)
     */
     typedef structure {
+        int ts;
         string id;
-        int limit;
-        int offset;
     } GetLineageParams;
 
     /*
     Parameters for get_children.
+        ts - optional - fetch documents with this active timestamp (defaults to now)
         id - required - ID of the taxon node, such as "ncbi_taxon/123"
         limit - optional - number of results to return (defaults to 20)
         offset - optional - number of results to skip (defaults to 0)
     */
     typedef structure {
+        int ts;
         string id;
         int limit;
         int offset;
@@ -34,11 +38,13 @@ module taxonomy_re_api {
 
     /*
     Parameters for get_siblings.
+        ts - optional - fetch documents with this active timestamp (defaults to now)
         id - required - ID of the taxon node, such as "ncbi_taxon/123"
         limit - optional - number of results to return (defaults to 20)
         offset - optional - number of results to skip (defaults to 0)
     */
     typedef structure {
+        int ts;
         string id;
         int limit;
         int offset;
@@ -46,11 +52,13 @@ module taxonomy_re_api {
 
     /*
     Parameters for get_associated_ws_objects.
+        ts - optional - fetch documents with this active timestamp (defaults to now)
         search_text - required - scientific name search text
         limit - optional - number of results to return (defaults to 20)
         offset - optional - number of results to skip (deafults to 0)
     */
     typedef structure {
+        int ts;
         string search_text;
         int limit;
         int offset;
@@ -58,11 +66,13 @@ module taxonomy_re_api {
 
     /*
     Parameters for get_associated_ws_objects.
+        ts - optional - fetch documents with this active timestamp (defaults to now)
         taxon_id - required - ID of the taxon node, such as "ncbi_taxon/123"
         limit - optional - number of results to return (defaults to 20)
         offset - optional - number of results to skip (defaults to 0)
     */
     typedef structure {
+        int ts;
         string taxon_id;
         int limit;
         int offset;

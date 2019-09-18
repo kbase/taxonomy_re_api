@@ -1,0 +1,21 @@
+type: object
+required: [id, ns]
+additionalProperties: false
+properties:
+  id: 
+    type: string
+    title: Document ID
+  ns:
+    type: string
+    title: Namespace
+    enum: ['ncbi_taxonomy']
+  ts:
+    type: integer
+    minimum: 0
+    description: Defaults to now
+  limit:
+    type: integer
+    maximum: 1000
+  offset:
+    type: integer
+    maximum: 100000
