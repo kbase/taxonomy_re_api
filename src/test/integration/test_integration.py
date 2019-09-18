@@ -30,7 +30,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_lineage',
-                'params': [{'id': 'ncbi_taxon/100'}]
+                'params': [{'id': '100', 'ns': 'ncbi_taxonomy'}]
             })
         )
         self.assertTrue(resp.ok)
@@ -47,7 +47,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_children',
-                'params': [{'id': 'ncbi_taxon/28211'}]
+                'params': [{'id': '28211', 'ns': 'ncbi_taxonomy'}]
             })
         )
         self.assertTrue(resp.ok)
@@ -65,7 +65,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_siblings',
-                'params': [{'id': 'ncbi_taxon/100'}]
+                'params': [{'id': '100', 'ns': 'ncbi_taxonomy'}]
             })
         )
         self.assertTrue(resp.ok)
@@ -82,7 +82,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_taxon',
-                'params': [{'id': 'ncbi_taxon/100'}]
+                'params': [{'id': '100', 'ns': 'ncbi_taxonomy'}]
             })
         )
         self.assertTrue(resp.ok)
@@ -97,7 +97,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.search_taxa',
-                'params': [{'search_text': 'prefix:rhodobact', 'limit': 10, 'offset': 20}]
+                'params': [{'ns': 'ncbi_taxonomy', 'search_text': 'prefix:rhodobact', 'limit': 10, 'offset': 20}]
             })
         )
         self.assertTrue(resp.ok)
@@ -114,7 +114,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_associated_ws_objects',
-                'params': [{'taxon_id': 'ncbi_taxon/562'}]
+                'params': [{'taxon_id': '562', 'taxon_ns': 'ncbi_taxonomy'}]
             })
         )
         print('associated objects response', resp.text)
