@@ -22,3 +22,9 @@ properties:
   offset:
     type: integer
     maximum: 100000
+  select:
+    type: array
+    items: {type: string}
+    description: |
+      Optional array of field names to return, excluding other fields. If this
+      param is missing, then all fields will get returned.

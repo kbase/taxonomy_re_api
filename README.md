@@ -81,6 +81,8 @@ This endpoint is authorization over workspace objects by passing a KBase token v
 
 [Request parameters schema (wrapped in an array)](src/server/schemas/get_associated_ws_objects.yaml)
 
+See the section below about the `select` parameter for further details on it.
+
 For the response schema, see the **Responses** section above.
 
 ### taxonomy_re_api.get_lineage(params)
@@ -88,6 +90,8 @@ For the response schema, see the **Responses** section above.
 Fetch the ancestors for a taxon vertex.
 
 [Request parameters schema (wrapped in an array)](src/server/schemas/get_lineage.yaml)
+
+See the section below about the `select` parameter for further details on it.
 
 For the response schema, see the **Responses** section above.
 
@@ -99,6 +103,8 @@ The optional "search_text" parameter can be specified to search on scientific na
 
 [Request parameters schema (wrapped in an array)](/src/server/schemas/get_children.yaml)
 
+See the section below about the `select` parameter for further details on it.
+
 For the response schema, see the **Responses** section above.
 
 ### taxonomy_re_api.get_siblings(params)
@@ -106,6 +112,8 @@ For the response schema, see the **Responses** section above.
 Fetch the siblings for a taxon.
 
 [Request parameters schema (wrapped in an array)](/src/server/schemas/get_siblings.yaml)
+
+See the section below about the `select` parameter for further details on it.
 
 For the response schema, see the **Responses** section above.
 
@@ -116,6 +124,8 @@ Search for taxa based on scientific name.
 Paginate with the "limit" and "offset" parameters.
 
 [Request parameters schema (wrapped in an array)](src/server/schemas/search_taxa.yaml)
+
+See the section below about the `select` parameter for further details on it.
 
 See the **Search text** section below for details on the syntax you can use in the search text.
 
@@ -131,6 +141,14 @@ Within a `"search_text"` field, you can use this Arangodb fulltext search syntax
 * To exclude a term, use `"-term"`
 
 See the ADB documentation for further details: https://www.arangodb.com/docs/stable/aql/functions-fulltext.html
+
+## The `select` parameter
+
+All of the methods (except `get_taxon`) can accept a `select` parameter, which
+allows you to control which fields you would like returned. Set it to an array
+of the field names that you want. This is useful if you would like to reduce
+the size of the response body. If you don't set this parameter, all fields
+will be returned in the results.
 
 ## Development
 

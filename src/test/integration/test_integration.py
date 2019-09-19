@@ -31,7 +31,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_lineage',
-                'params': [{'id': '100', 'ns': 'ncbi_taxonomy'}]
+                'params': [{'id': '100', 'ns': 'ncbi_taxonomy', 'select': ['rank', 'id']}]
             })
         )
         self.assertTrue(resp.ok)
@@ -66,13 +66,14 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_children',
-                'params': [{'id': '28211', 'ns': 'ncbi_taxonomy', 'search_text': 'caulobacterales'}]
+                'params': [{'id': '28211', 'ns': 'ncbi_taxonomy', 'search_text': 'caulobacterales', 'select': ['id']}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(len(result['results']), 1)
+        self.assertEqual(result['results'][0], {'id': '204458'})  # TODO Fix
 
     def test_get_siblings(self):
         """Test a call to get taxon siblings by taxon ID."""
@@ -132,5 +133,4 @@ class TestIntegration(unittest.TestCase):
                 'params': [{'taxon_id': '562', 'taxon_ns': 'ncbi_taxonomy'}]
             })
         )
-        print('associated objects response', resp.text)
         self.assertTrue(resp.ok)
