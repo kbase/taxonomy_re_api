@@ -36,7 +36,6 @@ class TestIntegration(unittest.TestCase):
         )
         self.assertTrue(resp.ok)
         body = resp.json()
-        print('body!!!', body)
         result = body['result'][0]
         self.assertEqual(len(result['results']), 8)
         ranks = [r['rank'] for r in result['results']]
@@ -134,5 +133,4 @@ class TestIntegration(unittest.TestCase):
                 'params': [{'taxon_id': '562', 'taxon_ns': 'ncbi_taxonomy'}]
             })
         )
-        print('associated objects response', resp.text)
         self.assertTrue(resp.ok)
