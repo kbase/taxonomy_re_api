@@ -59,6 +59,20 @@ class TestIntegration(unittest.TestCase):
         expected_ranks = {'order', 'no rank'}
         self.assertEqual(ranks, expected_ranks)
 
+    def test_get_children_search(self):
+        """Test a call to get direct descendants by ID and search on them."""
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'taxonomy_re_api.get_children',
+                'params': [{'id': '28211', 'ns': 'ncbi_taxonomy', 'search_text': 'caulobacterales'}]
+            })
+        )
+        self.assertTrue(resp.ok)
+        body = resp.json()
+        result = body['result'][0]
+        self.assertEqual(len(result['results']), 1)
+
     def test_get_siblings(self):
         """Test a call to get taxon siblings by taxon ID."""
         resp = requests.post(

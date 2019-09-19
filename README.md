@@ -95,13 +95,7 @@ For the response schema, see the **Responses** section above.
 
 Fetch the direct descendants for a taxon vertex.
 
-The optional "search_text" parameter can be specified to search on scientific name for the children.
-
-Within `"search_text"`, you can use this syntax to refine the results:
-* Separate search terms by comma: "rhodobacter,pseudomonas"
-* To search against a term **OR** another term, use a "|" prefix: "rhodobacter,|pseudomonas"
-* To search by prefix, use the "prefix:" prefix: "prefix:rhodo,|prefix:pseudo"
-* To exclude a term, use `"-term"`
+The optional "search_text" parameter can be specified to search on scientific name for the children. See the **Search text** section below for details on the `search_text` parameter.
 
 [Request parameters schema (wrapped in an array)](/src/server/schemas/get_children.yaml)
 
@@ -119,17 +113,24 @@ For the response schema, see the **Responses** section above.
 
 Search for taxa based on scientific name.
 
-Within `"search_text"`, you can use this syntax to refine the results:
+Paginate with the "limit" and "offset" parameters.
+
+[Request parameters schema (wrapped in an array)](src/server/schemas/search_taxa.yaml)
+
+See the **Search text** section below for details on the syntax you can use in the search text.
+
+For the response schema, see the **Responses** section above.
+
+## Search text
+
+Within a `"search_text"` field, you can use this Arangodb fulltext search syntax to refine the results:
+
 * Separate search terms by comma: "rhodobacter,pseudomonas"
 * To search against a term **OR** another term, use a "|" prefix: "rhodobacter,|pseudomonas"
 * To search by prefix, use the "prefix:" prefix: "prefix:rhodo,|prefix:pseudo"
 * To exclude a term, use `"-term"`
 
-Paginate with the "limit" and "offset" parameters.
-
-[Request parameters schema (wrapped in an array)](src/server/schemas/search_taxa.yaml)
-
-For the response schema, see the **Responses** section above.
+See the ADB documentation for further details: https://www.arangodb.com/docs/stable/aql/functions-fulltext.html
 
 ## Development
 
