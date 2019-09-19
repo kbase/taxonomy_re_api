@@ -13,6 +13,9 @@ properties:
     type: integer
     minimum: 0
     description: Defaults to now
+  search_text:
+    type: string
+    description: Optional text to use to search children.
   limit:
     type: integer
     maximum: 1000
