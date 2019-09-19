@@ -1,8 +1,9 @@
 import json
 import unittest
 import requests
+import os
 
-_URL = 'http://localhost:5000'
+_URL = os.environ.get('API_URL', 'http://localhost:5000')
 
 
 class TestIntegration(unittest.TestCase):

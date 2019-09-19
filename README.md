@@ -135,3 +135,10 @@ See the ADB documentation for further details: https://www.arangodb.com/docs/sta
 ## Development
 
 Run tests with `make test`
+
+You can also test the API against a live url. For example:
+
+```
+export API_URL="https://ci.kbase.us/dynserv/ecc3fcf41201e66ba6e2d8101195ea29bffba050.taxonomy-re-api"
+python -m unittest src/test/integration/test_integration.py
+```
