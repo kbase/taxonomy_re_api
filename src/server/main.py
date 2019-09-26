@@ -36,6 +36,21 @@ def _get_taxon(params, headers):
     return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
 
 
+def _get_taxon_from_ws_obj(params, headers):
+    """
+    Fetch the taxon document from a workspace object reference.
+    """
+    schema = _SCHEMAS['get_taxon_from_ws_obj']
+    jsonschema.validate(instance=params, schema=schema)
+    params['ts'] = params.get('ts', int(time.time() * 1000))
+    ns = params['ns']
+    del params['ns']
+    results = re_api.query("ncbi_taxon_get_taxon_from_ws_obj", params)
+    for res in results['results']:
+        res['ns'] = ns
+    return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
+
+
 def _get_lineage(params, headers):
     """
     Fetch ancestor lineage for a taxon by ID.
@@ -135,6 +150,7 @@ async def handle_rpc(req):
         'taxonomy_re_api.get_siblings': _get_siblings,
         'taxonomy_re_api.search_taxa': _search_taxa,
         'taxonomy_re_api.get_associated_ws_objects': _get_associated_ws_objects,
+        'taxonomy_re_api.get_taxon_from_ws_obj': _get_taxon_from_ws_obj,
     }
     if not body or not body.get('method'):
         raise InvalidParams("Missing method name")

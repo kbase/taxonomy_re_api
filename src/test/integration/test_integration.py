@@ -130,7 +130,28 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_associated_ws_objects',
-                'params': [{'taxon_id': '562', 'taxon_ns': 'ncbi_taxonomy'}]
+                'params': [{'taxon_id': '136841', 'taxon_ns': 'ncbi_taxonomy'}]
             })
         )
         self.assertTrue(resp.ok)
+        body = resp.json()['result'][0]
+        self.assertTrue(body['total_count'] > 0)
+
+    def test_get_taxon_from_ws_obj(self):
+        """Test a call to get a taxon doc from a workspace object id."""
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'taxonomy_re_api.get_taxon_from_ws_obj',
+                'params': [{'obj_ref': '15792:10546:2', 'ns': 'ncbi_taxonomy'}]
+            })
+        )
+        self.assertTrue(resp.ok)
+        result = resp.json()['result'][0]
+        self.assertDictContainsSubset({
+            'gencode': 11,
+            'id': '136841',
+            'ncbi_taxon_id': 136841,
+            'rank': 'species group',
+            'ns': 'ncbi_taxonomy'
+        }, result['results'][0])

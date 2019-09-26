@@ -1,0 +1,15 @@
+type: object
+required: [obj_ref, ns]
+additionalProperties: false
+properties:
+  obj_ref:
+    type: string
+    title: Versioned workspace object identifier
+  ns:
+    type: string
+    enum: ['ncbi_taxonomy']
+    title: Taxonomy namespace
+  ts:
+    type: integer
+    minimum: 0
+    description: Active timestamp for the taxon. Defaults to now.
