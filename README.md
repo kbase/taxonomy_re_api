@@ -73,6 +73,14 @@ Fetch the document data for a single taxon by ID.
 
 For the response schema, see the **Responses** section above.
 
+### taxonomy_re_api.get_taxon_from_ws_obj(params)
+
+Fetch the taxon document from a versioned workspace reference.
+
+[Request parameters schema (wrapped in an array)](src/server/schemas/get_taxon_from_ws_obj.yaml)
+
+For the response schema, see the **Responses** section above.
+
 ### taxonomy_re_api.get_associated_ws_objects(params)
 
 Fetch all workspace objects associated with a given taxon.
