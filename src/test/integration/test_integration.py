@@ -143,7 +143,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_taxon_from_ws_obj',
-                'params': [{'obj_ref': '15792:10546:2', 'ns': 'ncbi_taxonomy'}]
+                'params': [{'obj_ref': '15792/10546/2', 'ns': 'ncbi_taxonomy'}]
             })
         )
         self.assertTrue(resp.ok)

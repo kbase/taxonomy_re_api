@@ -5,6 +5,7 @@ properties:
   obj_ref:
     type: string
     title: Versioned workspace object identifier
+    regex: '^\d+\/\d+\/\d+$'
   ns:
     type: string
     enum: ['ncbi_taxonomy']

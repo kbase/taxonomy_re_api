@@ -43,6 +43,7 @@ def _get_taxon_from_ws_obj(params, headers):
     schema = _SCHEMAS['get_taxon_from_ws_obj']
     jsonschema.validate(instance=params, schema=schema)
     params['ts'] = params.get('ts', int(time.time() * 1000))
+    params['obj_ref'] = params['obj_ref'].replace('/', ':')
     ns = params['ns']
     del params['ns']
     results = re_api.query("ncbi_taxon_get_taxon_from_ws_obj", params)
