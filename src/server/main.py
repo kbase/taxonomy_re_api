@@ -132,6 +132,13 @@ def _get_associated_ws_objects(params, headers):
     res = results['results'][0]
     for res in results['results']:
         res['ns'] = ns
+        for elem in res['results']:
+            obj = elem['ws_obj']
+            obj['workspace'] = {
+                'refdata_source': obj['ws_info'].get('metadata', {}).get('refdata_source'),
+                'narr_name': obj['ws_info'].get('metadata', {}).get('narrative_nice_Name'),
+            }
+            del obj['ws_info']
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 

@@ -136,6 +136,11 @@ class TestIntegration(unittest.TestCase):
         self.assertTrue(resp.ok)
         body = resp.json()['result'][0]
         self.assertTrue(body['total_count'] > 0)
+        ws_infos = [res['ws_obj']['workspace'] for res in body['results']]
+        # Assert that we have workspace info in the results
+        for ws_info in ws_infos:
+            self.assertTrue('narr_name' in ws_info)
+            self.assertEqual(ws_info['refdata_source'], 'NCBI RefSeq')
 
     def test_get_taxon_from_ws_obj(self):
         """Test a call to get a taxon doc from a workspace object id."""
