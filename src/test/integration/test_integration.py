@@ -130,7 +130,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_associated_ws_objects',
-                'params': [{'taxon_id': '136841', 'taxon_ns': 'ncbi_taxonomy'}]
+                'params': [{'taxon_id': '287', 'taxon_ns': 'ncbi_taxonomy'}]
             })
         )
         self.assertTrue(resp.ok)
@@ -150,8 +150,8 @@ class TestIntegration(unittest.TestCase):
         result = resp.json()['result'][0]
         self.assertDictContainsSubset({
             'gencode': 11,
-            'id': '136841',
-            'ncbi_taxon_id': 136841,
-            'rank': 'species group',
+            'id': '287',
+            'ncbi_taxon_id': 287,
+            'rank': 'species',
             'ns': 'ncbi_taxonomy'
         }, result['results'][0])
