@@ -116,7 +116,11 @@ def _search_taxa(params, headers):
     res = results['results'][0]
     for res in results['results']:
         res['ns'] = ns
-    return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results'], 'ts': params['ts']}
+    return {
+        'stats': results['stats'],
+        'total_count': res['total_count'],
+        'results': res['results'],
+        'ts': params['ts']}
 
 
 def _get_associated_ws_objects(params, headers):

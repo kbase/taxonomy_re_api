@@ -81,16 +81,16 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_siblings',
-                'params': [{'id': '100', 'ns': 'ncbi_taxonomy'}]
+                'params': [{'id': '287', 'ns': 'ncbi_taxonomy', 'select': ['rank', 'scientific_name']}],
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
-        self.assertEqual(len(result['results']), 20)
-        self.assertTrue(result['total_count'] > 20)
+        self.assertTrue(len(result['results']) > 1)
+        self.assertTrue(result['total_count'] > 1)
         ranks = {r['rank'] for r in result['results']}
-        self.assertEqual(ranks, {'species'})
+        self.assertEqual(ranks, {'species', 'species subgroup'})
 
     def test_get_taxon(self):
         """Test a call to fetch a taxon by id."""
@@ -113,14 +113,22 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.search_taxa',
-                'params': [{'ns': 'ncbi_taxonomy', 'search_text': 'prefix:rhodobact', 'limit': 10, 'offset': 20}]
+                'params': [{
+                    'ns': 'ncbi_taxonomy',
+                    'search_text':
+                    'prefix:rhodobact',
+                    'limit': 10,
+                    'ranks': ['species'],
+                    'offset': 20}]
             })
         )
         self.assertTrue(resp.ok)
         body = resp.json()
         result = body['result'][0]
+        ranks = set(r['rank'] for r in result['results'])
         self.assertTrue(result['total_count'] > 10)
         self.assertEqual(len(result['results']), 10)
+        self.assertEqual(ranks, {'species'})
         for result in result['results']:
             self.assertTrue('rhodobact' in result['scientific_name'].lower())
 
