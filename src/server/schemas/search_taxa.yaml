@@ -34,3 +34,9 @@ properties:
     default: []
     items:
       type: string
+  include_strains:
+    description: |
+      true to include strains in the result, regardless of the ranks field.
+      false to perform no special filtering on strains.
+    type: boolean
+    default: false

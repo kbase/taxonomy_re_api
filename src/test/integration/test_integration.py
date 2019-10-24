@@ -119,7 +119,9 @@ class TestIntegration(unittest.TestCase):
                     'prefix:rhodobact',
                     'limit': 10,
                     'ranks': ['species'],
-                    'offset': 20}]
+                    'include_strains': True,
+                    'offset': 20
+                }]
             })
         )
         self.assertTrue(resp.ok)
