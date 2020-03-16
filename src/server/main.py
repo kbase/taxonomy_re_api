@@ -20,7 +20,7 @@ app.config.API_DESCRIPTION = 'Taxonomy data API using the relation engine.'
 app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 
 
-# Mapping of namespace name to collection and names and field names
+# Mapping of namespace names to collection and field names
 _NS_TO_COLL = {
     'ncbi_taxonomy': {
         'vertex': 'ncbi_taxon',
