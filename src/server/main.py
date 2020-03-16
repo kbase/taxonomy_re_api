@@ -20,6 +20,21 @@ app.config.API_DESCRIPTION = 'Taxonomy data API using the relation engine.'
 app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 
 
+# Mapping of namespace name to collection and names and field names
+_NS_TO_COLL = {
+    'ncbi_taxonomy': {
+        'vertex': 'ncbi_taxon',
+        'edge': 'ncbi_child_of_taxon',
+        'sciname_field': 'scientific_name',
+    },
+    'gtdb': {
+        'vertex': 'gtdb_taxon',
+        'edge': 'gtdb_child_of_taxon',
+        'sciname_field': 'name',
+    },
+}
+
+
 def _get_taxon(params, headers):
     """
     Fetch a taxon by ID.
@@ -30,7 +45,9 @@ def _get_taxon(params, headers):
     params['ts'] = params.get('ts', int(time.time() * 1000))
     ns = params['ns']
     del params['ns']
-    results = re_api.query("ncbi_fetch_taxon", params)
+    names = _NS_TO_COLL[ns]
+    params['@taxon_coll'] = names['vertex']
+    results = re_api.query("taxonomy_fetch_taxon", params)
     for res in results['results']:
         res['ns'] = ns
     return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
@@ -46,7 +63,9 @@ def _get_taxon_from_ws_obj(params, headers):
     params['obj_ref'] = params['obj_ref'].replace('/', ':')
     ns = params['ns']
     del params['ns']
-    results = re_api.query("ncbi_taxon_get_taxon_from_ws_obj", params)
+    names = _NS_TO_COLL[ns]
+    params['@taxon_coll'] = names['vertex']
+    results = re_api.query("taxonomy_get_taxon_from_ws_obj", params)
     for res in results['results']:
         res['ns'] = ns
     return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
@@ -62,7 +81,10 @@ def _get_lineage(params, headers):
     params['ts'] = params.get('ts', int(time.time() * 1000))
     ns = params['ns']
     del params['ns']
-    results = re_api.query("ncbi_taxon_get_lineage", params)
+    names = _NS_TO_COLL[ns]
+    params['@taxon_coll'] = names['vertex']
+    params['@taxon_child_of'] = names['edge']
+    results = re_api.query("taxonomy_get_lineage", params)
     for res in results['results']:
         res['ns'] = ns
     return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
@@ -78,7 +100,11 @@ def _get_children(params, headers):
     params['ts'] = params.get('ts', int(time.time() * 1000))
     ns = params['ns']
     del params['ns']
-    results = re_api.query("ncbi_taxon_get_children", params)
+    names = _NS_TO_COLL[ns]
+    params['@taxon_coll'] = names['vertex']
+    params['@taxon_child_of'] = names['edge']
+    params['sciname_field'] = names['sciname_field']
+    results = re_api.query("taxonomy_get_children", params)
     res = results['results'][0]
     for res in results['results']:
         res['ns'] = ns
@@ -95,7 +121,11 @@ def _get_siblings(params, headers):
     params['ts'] = params.get('ts', int(time.time() * 1000))
     ns = params['ns']
     del params['ns']
-    results = re_api.query("ncbi_taxon_get_siblings", params)
+    names = _NS_TO_COLL[ns]
+    params['@taxon_coll'] = names['vertex']
+    params['@taxon_child_of'] = names['edge']
+    params['sciname_field'] = names['sciname_field']
+    results = re_api.query("taxonomy_get_siblings", params)
     res = results['results'][0]
     for res in results['results']:
         res['ns'] = ns
@@ -112,7 +142,10 @@ def _search_taxa(params, headers):
     params['ts'] = params.get('ts', int(time.time() * 1000))
     ns = params['ns']
     del params['ns']
-    results = re_api.query("ncbi_taxon_search_sci_name", params)
+    names = _NS_TO_COLL[ns]
+    params['@taxon_coll'] = names['vertex']
+    params['sciname_field'] = names['sciname_field']
+    results = re_api.query("taxonomy_search_sci_name", params)
     res = results['results'][0]
     for res in results['results']:
         res['ns'] = ns
@@ -132,7 +165,9 @@ def _get_associated_ws_objects(params, headers):
     params['ts'] = params.get('ts', int(time.time() * 1000))
     ns = params['taxon_ns']
     del params['taxon_ns']
-    results = re_api.query("ncbi_taxon_get_associated_ws_objects", params, headers.get('Authorization'))
+    names = _NS_TO_COLL[ns]
+    params['@taxon_coll'] = names['vertex']
+    results = re_api.query("taxonomy_get_associated_ws_objects", params, headers.get('Authorization'))
     res = results['results'][0]
     for res in results['results']:
         res['ns'] = ns

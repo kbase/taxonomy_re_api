@@ -8,7 +8,7 @@ properties:
   ns:
     type: string
     title: Namespace
-    enum: ['ncbi_taxonomy']
+    enum: ['ncbi_taxonomy', 'gtdb']
   ts:
     type: integer
     minimum: 0
