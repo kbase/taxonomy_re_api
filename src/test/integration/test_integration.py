@@ -22,7 +22,7 @@ class TestIntegration(unittest.TestCase):
     def test_status(self):
         """Test the health check request."""
         resp = requests.get(_URL)
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         self.assertEqual(resp.json()['result'][0]['status'], 'ok')
 
     def test_get_lineage(self):
@@ -34,7 +34,7 @@ class TestIntegration(unittest.TestCase):
                 'params': [{'id': '100', 'ns': 'ncbi_taxonomy', 'select': ['rank', 'id']}]
             })
         )
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(len(result['results']), 8)
@@ -51,7 +51,7 @@ class TestIntegration(unittest.TestCase):
                 'params': [{'id': '28211', 'ns': 'ncbi_taxonomy'}]
             })
         )
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(len(result['results']), 20)
@@ -69,7 +69,7 @@ class TestIntegration(unittest.TestCase):
                 'params': [{'id': '28211', 'ns': 'ncbi_taxonomy', 'search_text': 'caulobacterales', 'select': ['id']}]
             })
         )
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(len(result['results']), 1)
@@ -84,7 +84,7 @@ class TestIntegration(unittest.TestCase):
                 'params': [{'id': '287', 'ns': 'ncbi_taxonomy', 'select': ['rank', 'scientific_name']}],
             })
         )
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         body = resp.json()
         result = body['result'][0]
         self.assertTrue(len(result['results']) > 1)
@@ -101,7 +101,7 @@ class TestIntegration(unittest.TestCase):
                 'params': [{'id': '100', 'ns': 'ncbi_taxonomy'}]
             })
         )
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(len(result['results']), 1)
@@ -124,7 +124,7 @@ class TestIntegration(unittest.TestCase):
                 }]
             })
         )
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         body = resp.json()
         result = body['result'][0]
         ranks = set(r['rank'] for r in result['results'])
@@ -143,7 +143,7 @@ class TestIntegration(unittest.TestCase):
                 'params': [{'taxon_id': '287', 'taxon_ns': 'ncbi_taxonomy'}]
             })
         )
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         body = resp.json()['result'][0]
         self.assertTrue(body['total_count'] > 0)
         ws_infos = [res['ws_obj']['workspace'] for res in body['results']]
@@ -161,7 +161,7 @@ class TestIntegration(unittest.TestCase):
                 'params': [{'obj_ref': '15792/10546/2', 'ns': 'ncbi_taxonomy'}]
             })
         )
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         result = resp.json()['result'][0]
         self.assertDictContainsSubset({
             'gencode': 11,
