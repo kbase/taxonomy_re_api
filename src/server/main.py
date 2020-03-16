@@ -239,7 +239,7 @@ async def invalid_schema(req, err):
     error = {
         'validator': err.validator,
         'validator_value': err.validator_value,
-        'path': err.path,
+        'path': list(err.path),
     }
     resp = {
         'error': {
@@ -266,6 +266,7 @@ async def re_api_error(req, err):
 
 
 @app.exception(sanic.exceptions.InvalidUsage)
+@app.exception(sanic.exceptions.MethodNotSupported)
 async def invalid_usage(req, err):
     resp = {
         'error': {

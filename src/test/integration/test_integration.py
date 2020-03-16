@@ -8,17 +8,6 @@ _URL = os.environ.get('API_URL', 'http://localhost:5000')
 
 class TestIntegration(unittest.TestCase):
 
-    # TODO invalid http method
-    # TODO invalid json body
-    # TODO missing method
-    # TODO empty method
-    # TODO unknown method
-    # TODO missing params
-    # TODO empty params (empty list and list of empty obj)
-    # TODO invalid id
-    # TODO valid id but nonexistent
-    # TODO error response from RE API
-
     def test_status(self):
         """Test the health check request."""
         resp = requests.get(_URL)
@@ -170,3 +159,81 @@ class TestIntegration(unittest.TestCase):
             'rank': 'species',
             'ns': 'ncbi_taxonomy'
         }, result['results'][0])
+
+    def test_invalid_http_method(self):
+        resp = requests.delete(_URL)
+        self.assertFalse(resp.ok, resp.text)
+        self.assertTrue('error' in resp.json())
+
+    def test_invalid_json_body(self):
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'taxonomy_re_api.get_taxon_from_ws_obj',
+                'params': 'xyz!'
+            })
+        )
+        self.assertFalse(resp.ok, resp.text)
+        self.assertTrue('error' in resp.json())
+
+    def test_missing_method(self):
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'params': '{}'
+            })
+        )
+        self.assertFalse(resp.ok, resp.text)
+        self.assertTrue('error' in resp.json())
+
+    def test_invalid_method_type(self):
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': None,
+                'params': '{}',
+            })
+        )
+        self.assertFalse(resp.ok, resp.text)
+        self.assertTrue('error' in resp.json())
+
+    def test_unknown_method(self):
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'xyz',
+                'params': '{}',
+            })
+        )
+        self.assertFalse(resp.ok, resp.text)
+        self.assertTrue('error' in resp.json())
+
+    def test_missing_params(self):
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'taxonomy_re_api.get_lineage',
+            })
+        )
+        self.assertFalse(resp.ok, resp.text)
+        self.assertTrue('error' in resp.json())
+
+    def test_empty_params(self):
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'taxonomy_re_api.get_lineage',
+                'params': []
+            })
+        )
+        self.assertFalse(resp.ok, resp.text)
+        self.assertTrue('error' in resp.json())
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'taxonomy_re_api.get_lineage',
+                'params': [{}]
+            })
+        )
+        self.assertFalse(resp.ok, resp.text)
+        self.assertTrue('error' in resp.json())
