@@ -7,7 +7,7 @@ properties:
     title: Taxonomy identifier
   taxon_ns:
     type: string
-    enum: ['ncbi_taxonomy']
+    enum: ['ncbi_taxonomy', 'gtdb']
     title: Taxonomy namespace
   ts:
     type: integer

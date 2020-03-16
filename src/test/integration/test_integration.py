@@ -130,7 +130,7 @@ class TestIntegration(unittest.TestCase):
         ranks = set(r['rank'] for r in result['results'])
         self.assertTrue(result['total_count'] > 10)
         self.assertEqual(len(result['results']), 10)
-        self.assertEqual(ranks, {'species'})
+        self.assertEqual(ranks, {'no rank', 'species'})
         for result in result['results']:
             self.assertTrue('rhodobact' in result['scientific_name'].lower())
 
