@@ -151,9 +151,10 @@ def _search_taxa(params, headers):
         res['ns'] = ns
     return {
         'stats': results['stats'],
-        'total_count': res['total_count'],
+        'total_count': res.get('total_count'),
         'results': res['results'],
-        'ts': params['ts']}
+        'ts': params['ts']
+    }
 
 
 def _get_associated_ws_objects(params, headers):
