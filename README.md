@@ -125,6 +125,20 @@ See the section below about the `select` parameter for further details on it.
 
 For the response schema, see the **Responses** section above.
 
+### taxonomy_re_api.search_species(params)
+
+Search for species or strains based on a scientific name. Similar to `search_taxa`, but is a stripped down, faster query.
+
+Paginate with the "limit" and "offset" parameters.
+
+[Request parameters schema (wrapped in an array)](src/server/schemas/search_species.yaml)
+
+See the section below about the `select` parameter for further details on it.
+
+See the **Search text** section below for details on the syntax you can use in the search text.
+
+For the response schema, see the **Responses** section above.
+
 ### taxonomy_re_api.search_taxa(params)
 
 Search for taxa based on scientific name.

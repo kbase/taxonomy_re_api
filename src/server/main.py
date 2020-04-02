@@ -157,6 +157,30 @@ def _search_taxa(params, headers):
     }
 
 
+def _search_species(params, headers):
+    """
+    Search for a species or strain. Similar to search_taxa, but a stripped down, faster query
+    Returns (result, err), one of which will be None.
+    """
+    schema = _SCHEMAS['search_species']
+    jsonschema.validate(instance=params, schema=schema)
+    params['ts'] = params.get('ts', int(time.time() * 1000))
+    ns = params['ns']
+    del params['ns']
+    names = _NS_TO_COLL[ns]
+    params['@taxon_coll'] = names['vertex']
+    params['sciname_field'] = names['sciname_field']
+    resp = re_api.query("taxonomy_search_species", params)
+    results = resp['results']
+    for res in results:
+        res['ns'] = ns
+    return {
+        'stats': resp['stats'],
+        'results': results,
+        'ts': params['ts']
+    }
+
+
 def _get_associated_ws_objects(params, headers):
     """
     Get any versioned workspace objects associated with a taxon.
@@ -197,6 +221,7 @@ async def handle_rpc(req):
         'taxonomy_re_api.get_children': _get_children,
         'taxonomy_re_api.get_siblings': _get_siblings,
         'taxonomy_re_api.search_taxa': _search_taxa,
+        'taxonomy_re_api.search_species': _search_species,
         'taxonomy_re_api.get_associated_ws_objects': _get_associated_ws_objects,
         'taxonomy_re_api.get_taxon_from_ws_obj': _get_taxon_from_ws_obj,
     }

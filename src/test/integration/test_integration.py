@@ -139,11 +139,33 @@ class TestIntegration(unittest.TestCase):
                 }]
             })
         )
-        print('test_search_taxa_no_count', resp.text)
-        self.assertTrue(resp.ok)
+        self.assertTrue(resp.ok, resp.text)
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(result['total_count'], None)
+
+    def test_search_species(self):
+        """Test a call to search species/strains."""
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'taxonomy_re_api.search_species',
+                'params': [{
+                    'ns': 'ncbi_taxonomy',
+                    'search_text': 'prefix:rhodobact',
+                    'limit': 10,
+                    'offset': 20
+                }]
+            })
+        )
+        self.assertTrue(resp.ok, resp.text)
+        body = resp.json()
+        result = body['result'][0]
+        ranks = set(r['rank'] for r in result['results'])
+        self.assertEqual(len(result['results']), 10)
+        self.assertEqual(ranks, {'species'})
+        for result in result['results']:
+            self.assertTrue('rhodobact' in result['scientific_name'].lower())
 
     @unittest.skip('TODO - requires query fix')
     def test_get_associated_ws_objects(self):

@@ -1,0 +1,30 @@
+type: object
+required: [search_text, ns]
+additionalProperties: false
+properties:
+  search_text: 
+    type: string
+    title: Search text
+  ns:
+    type: string
+    title: Namespace
+    enum: ['ncbi_taxonomy', 'gtdb']
+  ts:
+    type: integer
+    minimum: 0
+    description: Defaults to now
+  limit:
+    type: integer
+    default: 20
+    maximum: 1000
+  offset:
+    type: integer
+    default: 0
+    maximum: 100000
+  select:
+    type: [array, "null"]
+    default: null
+    items: {type: string}
+    description: |
+      Optional array of field names to return, excluding other fields. If this
+      param is missing, then all fields will get returned.
