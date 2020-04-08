@@ -62,7 +62,7 @@ class TestIntegration(unittest.TestCase):
         body = resp.json()
         result = body['result'][0]
         self.assertEqual(len(result['results']), 1)
-        self.assertEqual(result['results'][0], {'id': '204458'})  # TODO Fix
+        self.assertEqual(result['results'][0], {'id': '204458', 'ns': 'ncbi_taxonomy'})
 
     def test_get_siblings(self):
         """Test a call to get taxon siblings by taxon ID."""
@@ -122,27 +122,28 @@ class TestIntegration(unittest.TestCase):
         for result in result['results']:
             self.assertTrue('rhodobact' in result['scientific_name'].lower())
 
-    def test_search_taxa_no_count(self):
-        """Test a call to search taxa by scientific name."""
+    def test_search_species_gtdb(self):
+        """Test a call to search species/strains."""
         resp = requests.post(
             _URL,
             data=json.dumps({
-                'method': 'taxonomy_re_api.search_taxa',
+                'method': 'taxonomy_re_api.search_species',
                 'params': [{
-                    'ns': 'ncbi_taxonomy',
-                    'no_count': True,
-                    'search_text': 'rhodobacter',
+                    'ns': 'gtdb',
+                    'search_text': 'prefix:rhodobact',
                     'limit': 10,
-                    'ranks': ['species'],
-                    'include_strains': True,
-                    'offset': 0
+                    'offset': 20
                 }]
             })
         )
         self.assertTrue(resp.ok, resp.text)
         body = resp.json()
         result = body['result'][0]
-        self.assertEqual(result['total_count'], None)
+        ranks = set(r['rank'] for r in result['results'])
+        self.assertEqual(len(result['results']), 1)
+        self.assertEqual(ranks, {'species'})
+        for result in result['results']:
+            self.assertTrue('rhodobact' in result['scientific_name'].lower())
 
     def test_search_species(self):
         """Test a call to search species/strains."""

@@ -20,17 +20,46 @@ app.config.API_DESCRIPTION = 'Taxonomy data API using the relation engine.'
 app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 
 
+def transform_taxon_results(taxa, ns, ns_config):
+    """
+    Make some modifications on any taxon results given a namespace config (see _NS_CONFIG)
+    Mutates each dict in the given `taxa` list
+    """
+    for taxon in taxa:
+        taxon['ns'] = ns
+
+
+def transform_params(params, required_fields):
+    """
+    Set some defaults in the params that we pass into an RE query.
+    Mutates the params dict
+    Returns the namespace name and the namepsace config dict as a pair (see _NS_CONFIG below)
+    """
+    params['ts'] = params.get('ts', int(time.time() * 1000))
+    ns = params['ns']
+    del params['ns']
+    ns_config = _NS_CONFIG[ns]
+    for field_name in required_fields:
+        params[field_name] = ns_config['query_params'][field_name]
+    return (ns, ns_config)
+
+
 # Mapping of namespace names to collection and field names
-_NS_TO_COLL = {
+# The 'translate_field_name' options are used to change field names in the source document.
+_NS_CONFIG = {
     'ncbi_taxonomy': {
-        'vertex': 'ncbi_taxon',
-        'edge': 'ncbi_child_of_taxon',
-        'sciname_field': 'scientific_name',
+        'query_params': {
+            '@taxon_coll': 'ncbi_taxon',
+            '@taxon_child_of': 'ncbi_child_of_taxon',
+            'sciname_field': 'scientific_name',
+        },
     },
     'gtdb': {
-        'vertex': 'gtdb_taxon',
-        'edge': 'gtdb_child_of_taxon',
-        'sciname_field': 'name',
+        'query_params': {
+            '@taxon_coll': 'gtdb_taxon',
+            '@taxon_child_of': 'gtdb_child_of_taxon',
+            'sciname_field': 'scientific_name',
+        },
     },
 }
 
@@ -42,14 +71,9 @@ def _get_taxon(params, headers):
     """
     schema = _SCHEMAS['get_taxon']
     jsonschema.validate(instance=params, schema=schema)
-    params['ts'] = params.get('ts', int(time.time() * 1000))
-    ns = params['ns']
-    del params['ns']
-    names = _NS_TO_COLL[ns]
-    params['@taxon_coll'] = names['vertex']
+    (ns, ns_config) = transform_params(params, ('@taxon_coll',))
     results = re_api.query("taxonomy_fetch_taxon", params)
-    for res in results['results']:
-        res['ns'] = ns
+    transform_taxon_results(results['results'], ns, ns_config)
     return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
 
 
@@ -59,15 +83,10 @@ def _get_taxon_from_ws_obj(params, headers):
     """
     schema = _SCHEMAS['get_taxon_from_ws_obj']
     jsonschema.validate(instance=params, schema=schema)
-    params['ts'] = params.get('ts', int(time.time() * 1000))
+    (ns, ns_config) = transform_params(params, ('@taxon_coll',))
     params['obj_ref'] = params['obj_ref'].replace('/', ':')
-    ns = params['ns']
-    del params['ns']
-    names = _NS_TO_COLL[ns]
-    params['@taxon_coll'] = names['vertex']
     results = re_api.query("taxonomy_get_taxon_from_ws_obj", params)
-    for res in results['results']:
-        res['ns'] = ns
+    transform_taxon_results(results['results'], ns, ns_config)
     return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
 
 
@@ -79,14 +98,9 @@ def _get_lineage(params, headers):
     schema = _SCHEMAS['get_lineage']
     jsonschema.validate(instance=params, schema=schema)
     params['ts'] = params.get('ts', int(time.time() * 1000))
-    ns = params['ns']
-    del params['ns']
-    names = _NS_TO_COLL[ns]
-    params['@taxon_coll'] = names['vertex']
-    params['@taxon_child_of'] = names['edge']
+    (ns, ns_config) = transform_params(params, ('@taxon_coll', '@taxon_child_of'))
     results = re_api.query("taxonomy_get_lineage", params)
-    for res in results['results']:
-        res['ns'] = ns
+    transform_taxon_results(results['results'], ns, ns_config)
     return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
 
 
@@ -98,16 +112,10 @@ def _get_children(params, headers):
     schema = _SCHEMAS['get_children']
     jsonschema.validate(instance=params, schema=schema)
     params['ts'] = params.get('ts', int(time.time() * 1000))
-    ns = params['ns']
-    del params['ns']
-    names = _NS_TO_COLL[ns]
-    params['@taxon_coll'] = names['vertex']
-    params['@taxon_child_of'] = names['edge']
-    params['sciname_field'] = names['sciname_field']
+    (ns, ns_config) = transform_params(params, ('@taxon_coll', '@taxon_child_of', 'sciname_field'))
     results = re_api.query("taxonomy_get_children", params)
     res = results['results'][0]
-    for res in results['results']:
-        res['ns'] = ns
+    transform_taxon_results(res['results'], ns, ns_config)
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results'], 'ts': params['ts']}
 
 
@@ -118,17 +126,10 @@ def _get_siblings(params, headers):
     """
     schema = _SCHEMAS['get_siblings']
     jsonschema.validate(instance=params, schema=schema)
-    params['ts'] = params.get('ts', int(time.time() * 1000))
-    ns = params['ns']
-    del params['ns']
-    names = _NS_TO_COLL[ns]
-    params['@taxon_coll'] = names['vertex']
-    params['@taxon_child_of'] = names['edge']
-    params['sciname_field'] = names['sciname_field']
+    (ns, ns_config) = transform_params(params, ('@taxon_coll', '@taxon_child_of', 'sciname_field'))
     results = re_api.query("taxonomy_get_siblings", params)
     res = results['results'][0]
-    for res in results['results']:
-        res['ns'] = ns
+    transform_taxon_results(res['results'], ns, ns_config)
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results'], 'ts': params['ts']}
 
 
@@ -139,16 +140,10 @@ def _search_taxa(params, headers):
     """
     schema = _SCHEMAS['search_taxa']
     jsonschema.validate(instance=params, schema=schema)
-    params['ts'] = params.get('ts', int(time.time() * 1000))
-    ns = params['ns']
-    del params['ns']
-    names = _NS_TO_COLL[ns]
-    params['@taxon_coll'] = names['vertex']
-    params['sciname_field'] = names['sciname_field']
+    (ns, ns_config) = transform_params(params, ('@taxon_coll', 'sciname_field'))
     results = re_api.query("taxonomy_search_sci_name", params)
     res = results['results'][0]
-    for res in results['results']:
-        res['ns'] = ns
+    transform_taxon_results(res['results'], ns, ns_config)
     return {
         'stats': results['stats'],
         'total_count': res.get('total_count'),
@@ -165,15 +160,10 @@ def _search_species(params, headers):
     schema = _SCHEMAS['search_species']
     jsonschema.validate(instance=params, schema=schema)
     params['ts'] = params.get('ts', int(time.time() * 1000))
-    ns = params['ns']
-    del params['ns']
-    names = _NS_TO_COLL[ns]
-    params['@taxon_coll'] = names['vertex']
-    params['sciname_field'] = names['sciname_field']
+    (ns, ns_config) = transform_params(params, ('@taxon_coll', 'sciname_field'))
     resp = re_api.query("taxonomy_search_species", params)
     results = resp['results']
-    for res in results:
-        res['ns'] = ns
+    transform_taxon_results(results, ns, ns_config)
     return {
         'stats': resp['stats'],
         'results': results,
@@ -187,15 +177,12 @@ def _get_associated_ws_objects(params, headers):
     """
     schema = _SCHEMAS['get_associated_ws_objects']
     jsonschema.validate(instance=params, schema=schema)
-    params['ts'] = params.get('ts', int(time.time() * 1000))
-    ns = params['taxon_ns']
-    del params['taxon_ns']
-    names = _NS_TO_COLL[ns]
-    params['@taxon_coll'] = names['vertex']
+    (ns, ns_config) = transform_params(params, ('@taxon_coll',))
     results = re_api.query("taxonomy_get_associated_ws_objects", params, headers.get('Authorization'))
     res = results['results'][0]
+    transform_taxon_results(res['results'], ns, ns_config)
     for res in results['results']:
-        res['ns'] = ns
+        # Write some extra metadata about the workspace for each object
         for elem in res['results']:
             obj = elem['ws_obj']
             obj['workspace'] = {
