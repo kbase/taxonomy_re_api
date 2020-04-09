@@ -1,11 +1,11 @@
 type: object
-required: [taxon_id, taxon_ns]
+required: [id, ns]
 additionalProperties: false
 properties:
-  taxon_id:
+  id:
     type: string
     title: Taxonomy identifier
-  taxon_ns:
+  ns:
     type: string
     enum: ['ncbi_taxonomy', 'gtdb']
     title: Taxonomy namespace

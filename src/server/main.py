@@ -29,12 +29,17 @@ def transform_taxon_results(taxa, ns, ns_config):
         taxon['ns'] = ns
 
 
-def transform_params(params, required_fields):
+def transform_params(params, required_fields, field_name_remappings=None):
     """
     Set some defaults in the params that we pass into an RE query.
+    `field_name_remappings` can be a dict of {'input_param_field_name': 'field_name_to_send_to_query'}
     Mutates the params dict
     Returns the namespace name and the namepsace config dict as a pair (see _NS_CONFIG below)
     """
+    if field_name_remappings:
+        for (input_name, output_name) in field_name_remappings.items():
+            params[output_name] = params[input_name]
+            del params[input_name]
     params['ts'] = params.get('ts', int(time.time() * 1000))
     ns = params['ns']
     del params['ns']
@@ -177,10 +182,10 @@ def _get_associated_ws_objects(params, headers):
     """
     schema = _SCHEMAS['get_associated_ws_objects']
     jsonschema.validate(instance=params, schema=schema)
-    (ns, ns_config) = transform_params(params, ('@taxon_coll',))
+    (ns, ns_config) = transform_params(params, ('@taxon_coll',), {'id': 'taxon_id'})
     results = re_api.query("taxonomy_get_associated_ws_objects", params, headers.get('Authorization'))
     res = results['results'][0]
-    transform_taxon_results(res['results'], ns, ns_config)
+    transform_taxon_results(results['results'], ns, ns_config)
     for res in results['results']:
         # Write some extra metadata about the workspace for each object
         for elem in res['results']:
