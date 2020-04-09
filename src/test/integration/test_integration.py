@@ -175,7 +175,7 @@ class TestIntegration(unittest.TestCase):
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_associated_ws_objects',
-                'params': [{'taxon_id': '287', 'taxon_ns': 'ncbi_taxonomy'}]
+                'params': [{'id': '287', 'ns': 'ncbi_taxonomy'}]
             })
         )
         self.assertTrue(resp.ok, resp.text)
