@@ -168,14 +168,13 @@ class TestIntegration(unittest.TestCase):
         for result in result['results']:
             self.assertTrue('rhodobact' in result['scientific_name'].lower())
 
-    @unittest.skip('TODO - requires query fix')
     def test_get_associated_ws_objects(self):
         """Test a call to get associated workspace objects from a taxon id."""
         resp = requests.post(
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_associated_ws_objects',
-                'params': [{'id': '287', 'ns': 'ncbi_taxonomy'}]
+                'params': [{'id': '287', 'ns': 'ncbi_taxonomy', 'ts': 1569888060000}]
             })
         )
         self.assertTrue(resp.ok, resp.text)
@@ -187,14 +186,13 @@ class TestIntegration(unittest.TestCase):
             self.assertTrue('narr_name' in ws_info)
             self.assertEqual(ws_info['refdata_source'], 'NCBI RefSeq')
 
-    @unittest.skip('TODO - requires query fix')
     def test_get_taxon_from_ws_obj(self):
         """Test a call to get a taxon doc from a workspace object id."""
         resp = requests.post(
             _URL,
             data=json.dumps({
                 'method': 'taxonomy_re_api.get_taxon_from_ws_obj',
-                'params': [{'obj_ref': '15792/10546/2', 'ns': 'ncbi_taxonomy'}]
+                'params': [{'obj_ref': '15792:10546:2', 'ns': 'ncbi_taxonomy', 'ts': 1569888060000}]
             })
         )
         self.assertTrue(resp.ok, resp.text)
