@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.7.1] - 2020-04-14
+
+### Changed
+
+- Use a special RE API URL environment variable if we are in the appdev server environment
+
 ## [3.5.0] - 2020-04-02
 
 ### Added
