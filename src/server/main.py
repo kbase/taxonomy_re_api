@@ -66,6 +66,13 @@ _NS_CONFIG = {
             'sciname_field': 'scientific_name',
         },
     },
+    'rdp_taxonomy': {
+        'query_params': {
+            '@taxon_coll': 'rdp_taxon',
+            '@taxon_child_of': 'rdp_child_of_taxon',
+            'sciname_field': 'name',
+        }
+    }
 }
 
 

@@ -282,3 +282,22 @@ class TestIntegration(unittest.TestCase):
         )
         self.assertFalse(resp.ok, resp.text)
         self.assertTrue('error' in resp.json())
+
+    def test_search_taxa_rdp(self):
+        """Test a call to search taxa on RDP taxonomy."""
+        resp = requests.post(
+            _URL,
+            data=json.dumps({
+                'method': 'taxonomy_re_api.search_taxa',
+                'params': [{
+                    'ns': 'rdp_taxonomy',
+                    'search_text': 'rhodobacter',
+                }]
+            })
+        )
+        self.assertTrue(resp.ok, resp.text)
+        body = resp.json()
+        result = body['result'][0]
+        self.assertEqual(len(result['results']), 20)
+        for result in result['results']:
+            self.assertTrue('rhodobacter' in result['name'].lower())
