@@ -72,6 +72,13 @@ _NS_CONFIG = {
             '@taxon_child_of': 'rdp_child_of_taxon',
             'sciname_field': 'name',
         }
+    },
+    'silva_taxonomy': {
+        'query_params': {
+            '@taxon_coll': 'silva_taxon',
+            '@taxon_child_of': 'silva_child_of_taxon',
+            'sciname_field': 'name',
+        }
     }
 }
 
