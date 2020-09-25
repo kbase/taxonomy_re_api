@@ -12,7 +12,7 @@ properties:
   ns:
     type: string
     title: Namespace
-    enum: ['rdp_taxonomy', 'ncbi_taxonomy', 'gtdb', 'silva']
+    enum: ['rdp_taxonomy', 'ncbi_taxonomy', 'gtdb', 'silva_taxonomy']
   ts:
     type: integer
     minimum: 0
