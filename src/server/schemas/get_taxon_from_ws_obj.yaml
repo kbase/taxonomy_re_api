@@ -8,7 +8,7 @@ properties:
     regex: '^\d+\/\d+\/\d+$'
   ns:
     type: string
-    enum: ['rdp_taxonomy', 'ncbi_taxonomy', 'gtdb']
+    enum: ['rdp_taxonomy', 'ncbi_taxonomy', 'gtdb', 'silva_taxonomy']
     title: Taxonomy namespace
   ts:
     type: integer
