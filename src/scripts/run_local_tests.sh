@@ -15,4 +15,4 @@ sh /kb/module/src/scripts/entrypoint.sh &
 python -m src.utils.wait_for_services &&
 
 # Run all tests
-python -m unittest discover /kb/module/src/test/integration
+python -m unittest discover /kb/module/src/test/local_integration

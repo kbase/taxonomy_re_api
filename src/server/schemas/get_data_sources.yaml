@@ -1,0 +1,18 @@
+title: get_data_sources parameter
+description: Parameter definition for the get_data_sources method
+type: object
+additionalProperties: false
+required: []
+properties:
+  ns:
+    title: Namespace
+    description: The RE namespace identifier associated with the source
+    oneOf:
+      - description: |
+          A null value indicates no namespace filtering to be applied; synonymous with 
+          the property being missing.
+        type: "null"
+      - description: An array of namespace identifiers
+        type: array
+        items:
+          type: string

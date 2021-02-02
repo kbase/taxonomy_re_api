@@ -1,0 +1,22 @@
+version: "3"
+networks:
+  kbase-dev:
+    external:
+      name: kbase-dev
+services:
+  # Web server
+  taxonomy_re_api:
+    container_name: taxonomy-re-api
+    build:
+      context: ..
+      args:
+        DEVELOPMENT: 1
+    volumes:
+      - ${PWD}/..:/kb/module
+    dns:
+      - "8.8.8.8"
+    networks:
+      - kbase-dev
+    environment:
+      - DEVELOPMENT=1
+      - KBASE_SECURE_CONFIG_PARAM_RE_API_URL=${RE_API_URL}
