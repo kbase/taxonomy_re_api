@@ -8,7 +8,8 @@ This service is a registered as a KBase dynamic service under the module name `t
 
 JSON RPC requests can be made to to the root path of the URL as a POST request with a json body.
 
-The API follows two unusual conventions followed by other KBase APIs:
+The API follows two conventions followed by KBase APIs:
+
 * All method names are prefixed by the module name (`taxonomy_re_api.get_taxon` instead of just `get_taxon`)
 * All params and results are wrapped in an extra array
 
@@ -153,6 +154,68 @@ See the **Search text** section below for details on the syntax you can use in t
 
 For the response schema, see the **Responses** section above.
 
+### taxonomy_re_api.get_data_sources(params)
+
+Returns all or matching set of taxonomy data source descriptions.
+
+The only parameter is the optional `ns`, which may be used to filter the returned data sources by namespace. There is a 1-1 correspondence between namespaces (e.g. `ncbi_taxonomy`) and a data source descriptions.
+
+#### Params
+
+[Request parameters schema (wrapped in an array)](src/server/schemas/get_data_sources.yaml)
+#### Result
+
+Usage:
+
+* omit the params or supply an empty object to return all taxonomy data sources
+* supply a list of 1 or more namespaces in the `ns` parameter to return just those data sources
+
+An implication of this design is that supplying an `ns` with an empty list will return no data sources.
+
+#### Example
+
+##### Return all data sources
+
+This RPC request returns all data_sources by omitting the parameter. (Remember, KBase service params are the (almost) always the first element of the JSON-RPC params field, which must be an array.)
+
+```json
+{
+	"version": "1.1",
+	"method": "taxonomy_re_api.get_data_sources",
+	"params": []
+}
+```
+
+or by supplying the params, but omitting the `ns` param:
+
+```json
+{
+	"version": "1.1",
+	"method": "taxonomy_re_api.get_data_sources",
+	"params": [{}]
+}
+```
+
+##### Return NCBI data source
+
+```json
+{
+	"version": "1.1",
+	"method": "taxonomy_re_api.get_data_sources",
+	"params": [{"ns": ["ncbi_taxonomy"]}]
+}
+```
+
+##### Return NCBI and GTDB data source
+
+```json
+{
+	"version": "1.1",
+	"method": "taxonomy_re_api.get_data_sources",
+	"params": [{"ns": ["ncbi_taxonomy", "gtdb"]}]
+}
+```
+
 ## Search text
 
 Within a `"search_text"` field, you can use this Arangodb fulltext search syntax to refine the results:
@@ -166,7 +229,7 @@ See the ADB documentation for further details: https://www.arangodb.com/docs/sta
 
 ## The `select` parameter
 
-All of the methods (except `get_taxon`) can accept a `select` parameter, which
+All of the methods (except `get_taxon` and `get_data_sources`) can accept a `select` parameter, which
 allows you to control which fields you would like returned. Set it to an array
 of the field names that you want. This is useful if you would like to reduce
 the size of the response body. If you don't set this parameter, all fields
@@ -174,11 +237,17 @@ will be returned in the results.
 
 ## Development
 
-Run tests with `make test`
+### Unit tests
+
+Run unit tests with `make test`
+
+### Integration tests
 
 You can also test the API against a live url. For example:
 
 ```
 export API_URL="https://ci.kbase.us/dynserv/ecc3fcf41201e66ba6e2d8101195ea29bffba050.taxonomy-re-api"
 python -m unittest src/test/integration/test_integration.py
+
+python -m unittest discover -s src/test/integration 
 ```

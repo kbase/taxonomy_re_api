@@ -1,8 +1,31 @@
 """Exception classes."""
 
 
+class ParseError(Exception):
+    code = -32700
+
+
+class InvalidRequest(Exception):
+    code = -32600
+
+
+class MethodNotFound(Exception):
+    code = -32601
+
+    def __init__(self, method_name):
+        self.method_name = method_name
+
+
 class InvalidParams(Exception):
-    pass
+    code = -32602
+
+
+class InternalError(Exception):
+    code = -32603
+
+
+class ServerError(Exception):
+    code = -32000
 
 
 class REError(Exception):

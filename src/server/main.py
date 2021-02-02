@@ -6,11 +6,13 @@ import sanic
 import jsonschema
 import traceback
 from jsonschema.exceptions import ValidationError
+from contextlib import suppress
+
 
 from src.utils.config import get_config
 from src.utils.schemas import load_schemas
 from src.utils import re_api
-from src.exceptions import InvalidParams, REError
+from src.exceptions import MethodNotFound, InvalidRequest, InvalidParams, ServerError, REError
 
 _CONF = get_config()
 _SCHEMAS = load_schemas()
@@ -34,7 +36,7 @@ def transform_params(params, required_fields, field_name_remappings=None):
     Set some defaults in the params that we pass into an RE query.
     `field_name_remappings` can be a dict of {'input_param_field_name': 'field_name_to_send_to_query'}
     Mutates the params dict
-    Returns the namespace name and the namepsace config dict as a pair (see _NS_CONFIG below)
+    Returns the namespace name and the namespace config dict as a pair (see _NS_CONFIG below)
     """
     if field_name_remappings:
         for (input_name, output_name) in field_name_remappings.items():
@@ -212,6 +214,75 @@ def _get_associated_ws_objects(params, headers):
     return {'stats': results['stats'], 'total_count': res['total_count'], 'results': res['results']}
 
 
+def _get_data_sources(params, headers):
+    """
+    Returns a list of all Taxonomy Sources
+    """
+    schema = _SCHEMAS['get_data_sources']
+
+    # parameters for get_data_sources are not actually required, as omitting
+    # the parameters (which filter the sources) implies returning all.
+    if params is not None:
+        jsonschema.validate(instance=params, schema=schema)
+
+    re_params = {
+        'type': 'taxonomy',
+    }
+
+    # Be nice. Filtering by ns can be skipped by either setting 'ns' to null, or
+    # omitting it from the params object.
+    if params is not None and params.get('ns') is not None:
+        re_params['ns'] = params.get('ns')
+        response = re_api.query("data_sources_get_data_sources", re_params, headers.get('Authorization'))
+    else:
+        response = re_api.query("data_sources_get_all_data_sources", re_params, headers.get('Authorization'))
+
+    sources = []
+    for source in response['results']:
+        del source['_id']
+        del source['_key']
+        del source['_rev']
+        sources.append(source)
+
+    return {
+        'sources': sources
+    }
+
+
+def _rpc_resp(req, resp, status=200):
+    resp['version'] = '1.1'
+    # We need to suppress the call for json
+    # since it fails if the request does not
+    # have json.
+    has_json = False
+    with suppress(Exception):
+        if req.json:
+            has_json = True
+
+    if has_json and 'id' in req.json:
+        resp['id'] = req.json['id']
+
+    return sanic.response.json(resp, status)
+
+
+def get_json_type(json_value):
+    if isinstance(json_value, str):
+        return 'string'
+    elif isinstance(json_value, bool):
+        return 'boolean'
+    elif isinstance(json_value, int) or isinstance(json_value, float):
+        return 'number'
+    elif isinstance(json_value, dict):
+        return 'object'
+    if isinstance(json_value, list):
+        return 'array'
+    elif json_value is None:
+        return 'null'
+    else:
+        # should be impossible
+        raise Exception('Not a json type')
+
+
 @app.route('/', methods=["POST", "GET", "OPTIONS"])
 async def handle_rpc(req):
     """Handle a JSON RPC 1.1 request."""
@@ -230,16 +301,59 @@ async def handle_rpc(req):
         'taxonomy_re_api.search_species': _search_species,
         'taxonomy_re_api.get_associated_ws_objects': _get_associated_ws_objects,
         'taxonomy_re_api.get_taxon_from_ws_obj': _get_taxon_from_ws_obj,
+        'taxonomy_re_api.get_data_sources': _get_data_sources,
     }
-    if not body or not body.get('method'):
-        raise InvalidParams("Missing method name")
-    if not body.get('method') in handlers:
-        raise sanic.exceptions.NotFound(f"Method not found: {body.get('method')}")
-    meth = handlers[body['method']]
-    params = body.get('params')
-    if not isinstance(params, list) or not params:
-        raise InvalidParams(f"Method params should be a single-element array. It is: {params}")
-    result = meth(params[0], req.headers)
+
+    # Validate  JSON-RPC 1.1 overall structure
+
+    if not body:
+        raise InvalidRequest("Request is not valid")
+
+    if not isinstance(body, dict):
+        raise InvalidRequest("Request is not valid")
+
+    # Validate version
+
+    if 'version' not in body:
+        raise InvalidRequest("Missing version version in request")
+
+    if body['version'] != '1.1':
+        raise InvalidRequest("Version must be 1.1")
+
+    # Validate method
+
+    if 'method' not in body:
+        raise InvalidRequest("Missing method name in request")
+
+    method = body['method']
+
+    if not isinstance(method, str):
+        raise InvalidRequest("Request method is invalid")
+
+    # Validate params
+
+    if 'params' not in body:
+        raise InvalidRequest("Missing params in request")
+
+    params = body['params']
+
+    if not isinstance(params, list):
+
+        raise InvalidRequest(f'Method params should be an array, it is a "{get_json_type(params)}"')
+
+    param = None
+    if len(params) == 1:
+        param = params[0]
+    elif len(params) > 1:
+        raise InvalidParams(f"Method params array can only include at most one item, it has {len(params)}")
+
+    # Run the method
+    if method not in handlers:
+        raise MethodNotFound(method)
+
+    meth = handlers[method]
+
+    result = meth(param, req.headers)
     resp = {'result': [result]}
     return _rpc_resp(req, resp)
 
@@ -269,16 +383,17 @@ async def page_not_found(req, err):
 async def invalid_schema(req, err):
     """Handle a JSON Schema validation error."""
     error = {
+        'message': 'Parameter validation error: ' + err.message,
         'validator': err.validator,
         'validator_value': err.validator_value,
         'path': list(err.path),
     }
     resp = {
         'error': {
-            'name': 'params_invalid',
-            'error': error,
-            'code': 400,
-            'message': 'Parameter validation error: ' + err.message,
+            'name': 'JSONRPCError',
+            'code': InvalidParams.code,
+            'message': 'Invalid params',
+            'error': error
         }
     }
     return _rpc_resp(req, resp, status=400)
@@ -288,23 +403,75 @@ async def invalid_schema(req, err):
 async def re_api_error(req, err):
     resp = {
         'error': {
-            'name': 'relation_engine_error',
-            'code': 400,
-            'message': 'Relation engine API error',
-            'error': err.resp_json or err.resp_text,
+            'name': 'JSONRPCError',
+            'code': ServerError.code,
+            'message': 'Server error',
+            'error': {
+                'message': 'Relation engine API error',
+                're_error': err.resp_json or err.resp_text
+            }
         }
     }
     return _rpc_resp(req, resp, status=400)
 
 
 @app.exception(sanic.exceptions.InvalidUsage)
-@app.exception(sanic.exceptions.MethodNotSupported)
 async def invalid_usage(req, err):
     resp = {
         'error': {
-            'name': 'invalid_usage',
-            'message': str(err),
-            'code': 400,
+            'name': 'JSONRPCError',
+            'code': InvalidRequest.code,
+            'message': 'Invalid request',
+            'error': {
+                'message': str(err),
+            }
+
+        }
+    }
+    return _rpc_resp(req, resp, status=400)
+
+
+@app.exception(sanic.exceptions.MethodNotSupported)
+async def method_not_supported(req, err):
+    resp = {
+        'error': {
+            'name': 'JSONRPCError',
+            'code': InvalidRequest.code,
+            'message': 'Invalid request',
+            'error': {
+                'message': str(err),
+            }
+        }
+    }
+    return _rpc_resp(req, resp, status=400)
+
+
+@app.exception(InvalidRequest)
+async def invalid_request(req, err):
+    resp = {
+        'error': {
+            'name': 'JSONRPCError',
+            'code': err.code,
+            'message': 'Invalid request',
+            'error': {
+                'message': str(err)
+            }
+        }
+    }
+    return _rpc_resp(req, resp, status=400)
+
+
+@app.exception(MethodNotFound)
+async def method_not_found(req, err):
+    resp = {
+        'error': {
+            'name': 'JSONRPCError',
+            'code': err.code,
+            'message': 'Method not found',
+            'error': {
+                'message': f'Method "{err.method_name}" not found',
+                'method': err.method_name
+            }
         }
     }
     return _rpc_resp(req, resp, status=400)
@@ -314,9 +481,12 @@ async def invalid_usage(req, err):
 async def invalid_params(req, err):
     resp = {
         'error': {
-            'name': 'invalid_request',
-            'message': str(err),
-            'code': 400,
+            'name': 'JSONRPCError',
+            'code': err.code,
+            'message': 'Invalid params',
+            'error': {
+                'message': str(err),
+            }
         }
     }
     return _rpc_resp(req, resp, status=400)
@@ -326,24 +496,18 @@ async def invalid_params(req, err):
 @app.exception(Exception)
 async def server_error(req, err):
     traceback.print_exc()
-    error = {'class': err.__class__.__name__}
     resp = {
         'error': {
-            'name': 'uncaught_error',
-            'code': 500,
-            'message': str(err),
-            'error': error
+            'name': 'JSONRPCError',
+            'code': ServerError.code,
+            'message': 'Server error',
+            'error': {
+                'message': str(err),
+                'class': err.__class__.__name__
+            }
         }
     }
     return _rpc_resp(req, resp, status=500)
-
-
-def _rpc_resp(req, resp, status=200):
-    resp['version'] = '1.1'
-    if req.json and req.json.get('id'):
-        resp['id'] = req.json['id']
-    return sanic.response.json(resp, status)
-
 
 if __name__ == '__main__':
     app.run(
