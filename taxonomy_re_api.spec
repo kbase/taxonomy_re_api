@@ -118,4 +118,54 @@ module taxonomy_re_api {
     /* Get all workspace objects associated with a taxon. */
     funcdef get_associated_ws_objects(GetAssociatedWsObjectsParams params)
         returns (Results results) authentication optional;
+
+    /* get_data_sources definition */
+    typedef structure {
+        list<string> ns;
+    } GetDataSourcesParams;
+
+    typedef structure {
+        string url;
+        string label;
+    } Link;
+
+    typedef structure {
+        string url_template;
+        string label;
+    } TemplateLink;
+
+    /*
+        Actually an enum or union of:
+        'string' | 'number' | 'boolean' | 'array<string>' | 'array<alias>' | 'array<synonym>' | 'sequence'
+
+    */
+    typedef string SourceFieldDataType;
+
+    typedef structure {
+        string id;
+        SourceFieldDataType type;
+        string tooltip;
+        string description;
+    } SourceFieldDefinition;
+
+    typedef structure {
+        string ns;
+        string type;
+        string title;
+        string short_title;
+        string data_url;
+        string home_url;
+        string logo_url;
+        Link license;
+        TemplateLink item_link;
+        string citation;
+        list<SourceFieldDefinition> additional_fields;
+    } TaxonomySource;
+
+    typedef structure {
+        list<TaxonomySource> sources;
+    } GetDataSourcesResult;
+
+    /* Get taxonomy data sources */
+    funcdef get_data_sources(GetDataSourcesParams params) returns (GetDataSourcesResult result) authentication optional;
 };
