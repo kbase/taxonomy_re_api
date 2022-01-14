@@ -35,8 +35,10 @@ class REError(Exception):
         """Takes a requests response object."""
         self.resp_json = None
         try:
-            body = resp.json()
-            self.resp_json = body
+            self.resp_json = resp.json()
         except ValueError:
             pass
         self.resp_text = resp.text
+
+    def __str__(self):
+        return self.resp_text

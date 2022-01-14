@@ -8,9 +8,9 @@ import traceback
 from jsonschema.exceptions import ValidationError
 from contextlib import suppress
 
-
 from src.utils.config import get_config
 from src.utils.schemas import load_schemas
+from src.utils.search import clean_search_text
 from src.utils import re_api
 from src.exceptions import MethodNotFound, InvalidRequest, InvalidParams, ServerError, REError
 
@@ -31,23 +31,20 @@ def transform_taxon_results(taxa, ns, ns_config):
         taxon['ns'] = ns
 
 
-def transform_params(params, required_fields, field_name_remappings=None):
+def transform_query_params(params, required_ns_fields=[], field_name_remappings={}):
     """
     Set some defaults in the params that we pass into an RE query.
     `field_name_remappings` can be a dict of {'input_param_field_name': 'field_name_to_send_to_query'}
     Mutates the params dict
     Returns the namespace name and the namespace config dict as a pair (see _NS_CONFIG below)
     """
-    if field_name_remappings:
-        for (input_name, output_name) in field_name_remappings.items():
-            params[output_name] = params[input_name]
-            del params[input_name]
-    params['ts'] = params.get('ts', int(time.time() * 1000))
-    ns = params['ns']
-    del params['ns']
+    ns = params.pop('ns')
     ns_config = _NS_CONFIG[ns]
-    for field_name in required_fields:
+    for field_name in required_ns_fields:
         params[field_name] = ns_config['query_params'][field_name]
+    for (input_name, output_name) in field_name_remappings.items():
+        params[output_name] = params.pop(input_name)
+    params.setdefault('ts', int(time.time() * 1000))
     return (ns, ns_config)
 
 
@@ -92,7 +89,7 @@ def _get_taxon(params, headers):
     """
     schema = _SCHEMAS['get_taxon']
     jsonschema.validate(instance=params, schema=schema)
-    (ns, ns_config) = transform_params(params, ('@taxon_coll',))
+    (ns, ns_config) = transform_query_params(params, ('@taxon_coll',))
     results = re_api.query("taxonomy_fetch_taxon", params)
     transform_taxon_results(results['results'], ns, ns_config)
     return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
@@ -104,7 +101,7 @@ def _get_taxon_from_ws_obj(params, headers):
     """
     schema = _SCHEMAS['get_taxon_from_ws_obj']
     jsonschema.validate(instance=params, schema=schema)
-    (ns, ns_config) = transform_params(params, ('@taxon_coll',))
+    (ns, ns_config) = transform_query_params(params, ('@taxon_coll',))
     params['obj_ref'] = params['obj_ref'].replace('/', ':')
     results = re_api.query("taxonomy_get_taxon_from_ws_obj", params)
     transform_taxon_results(results['results'], ns, ns_config)
@@ -118,8 +115,7 @@ def _get_lineage(params, headers):
     """
     schema = _SCHEMAS['get_lineage']
     jsonschema.validate(instance=params, schema=schema)
-    params['ts'] = params.get('ts', int(time.time() * 1000))
-    (ns, ns_config) = transform_params(params, ('@taxon_coll', '@taxon_child_of'))
+    (ns, ns_config) = transform_query_params(params, ('@taxon_coll', '@taxon_child_of'))
     results = re_api.query("taxonomy_get_lineage", params)
     transform_taxon_results(results['results'], ns, ns_config)
     return {'stats': results['stats'], 'results': results['results'], 'ts': params['ts']}
@@ -132,8 +128,7 @@ def _get_children(params, headers):
     """
     schema = _SCHEMAS['get_children']
     jsonschema.validate(instance=params, schema=schema)
-    params['ts'] = params.get('ts', int(time.time() * 1000))
-    (ns, ns_config) = transform_params(params, ('@taxon_coll', '@taxon_child_of', 'sciname_field'))
+    (ns, ns_config) = transform_query_params(params, ('@taxon_coll', '@taxon_child_of', 'sciname_field'))
     results = re_api.query("taxonomy_get_children", params)
     res = results['results'][0]
     transform_taxon_results(res['results'], ns, ns_config)
@@ -147,7 +142,7 @@ def _get_siblings(params, headers):
     """
     schema = _SCHEMAS['get_siblings']
     jsonschema.validate(instance=params, schema=schema)
-    (ns, ns_config) = transform_params(params, ('@taxon_coll', '@taxon_child_of', 'sciname_field'))
+    (ns, ns_config) = transform_query_params(params, ('@taxon_coll', '@taxon_child_of', 'sciname_field'))
     results = re_api.query("taxonomy_get_siblings", params)
     res = results['results'][0]
     transform_taxon_results(res['results'], ns, ns_config)
@@ -161,7 +156,7 @@ def _search_taxa(params, headers):
     """
     schema = _SCHEMAS['search_taxa']
     jsonschema.validate(instance=params, schema=schema)
-    (ns, ns_config) = transform_params(params, ('@taxon_coll', 'sciname_field'))
+    (ns, ns_config) = transform_query_params(params, ('@taxon_coll', 'sciname_field'))
     results = re_api.query("taxonomy_search_sci_name", params)
     res = results['results'][0]
     transform_taxon_results(res['results'], ns, ns_config)
@@ -175,21 +170,52 @@ def _search_taxa(params, headers):
 
 def _search_species(params, headers):
     """
-    Search for a species or strain. Similar to search_taxa, but a stripped down, faster query
-    Returns (result, err), one of which will be None.
+    Search for a species or strain.
+
+    Schema params are:
+    * search_text (required)
+    * ns (required)
+    * ts
+    * limit
+    * offset
+    * select
+
+    Response looks like:
+    {
+        "results": [...],   # docs
+        "count": ...,       # num docs
+        "has_more": ...,
+        "cursor_id": ...,
+        "stats": {...},
+    }
     """
     schema = _SCHEMAS['search_species']
     jsonschema.validate(instance=params, schema=schema)
-    params['ts'] = params.get('ts', int(time.time() * 1000))
-    (ns, ns_config) = transform_params(params, ('@taxon_coll', 'sciname_field'))
-    resp = re_api.query("taxonomy_search_species", params)
-    results = resp['results']
-    transform_taxon_results(results, ns, ns_config)
-    return {
-        'stats': resp['stats'],
-        'results': results,
-        'ts': params['ts']
-    }
+    ns, ns_config = transform_query_params(
+        params=params,
+        required_ns_fields=('@taxon_coll', 'sciname_field'),
+    )
+    # Check if the search text is acceptable for AQL
+    params['search_text'] = clean_search_text(params['search_text'])
+    if params['search_text']:
+        stored_query = (
+            'taxonomy_search_species_strain_no_sort'
+            if len(params['search_text']) <= 3
+            else 'taxonomy_search_species_strain'
+        )
+        resp_json = re_api.query(stored_query, params)
+        transform_taxon_results(resp_json['results'], ns, ns_config)
+        return {
+            'results': resp_json['results'],
+            'ts': params['ts'],
+            'stats': resp_json['stats'],
+        }
+    else:
+        return {
+            'results': [],
+            'ts': params['ts'],
+            'stats': None,
+        }
 
 
 def _get_associated_ws_objects(params, headers):
@@ -198,7 +224,7 @@ def _get_associated_ws_objects(params, headers):
     """
     schema = _SCHEMAS['get_associated_ws_objects']
     jsonschema.validate(instance=params, schema=schema)
-    (ns, ns_config) = transform_params(params, ('@taxon_coll',), {'id': 'taxon_id'})
+    (ns, ns_config) = transform_query_params(params, ('@taxon_coll',), {'id': 'taxon_id'})
     results = re_api.query("taxonomy_get_associated_ws_objects", params, headers.get('Authorization'))
     res = results['results'][0]
     transform_taxon_results(results['results'], ns, ns_config)
@@ -338,7 +364,6 @@ async def handle_rpc(req):
     params = body['params']
 
     if not isinstance(params, list):
-
         raise InvalidRequest(f'Method params should be an array, it is a "{get_json_type(params)}"')
 
     param = None

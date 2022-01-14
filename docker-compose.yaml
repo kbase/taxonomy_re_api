@@ -6,6 +6,7 @@ services:
   app:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
         DEVELOPMENT: 1
     volumes:
