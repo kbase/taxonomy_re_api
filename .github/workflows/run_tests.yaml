@@ -1,0 +1,14 @@
+name: Relation Engine test and deploy
+on:
+  [push, pull_request]
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout git repo
+      uses: actions/checkout@v2
+
+    - name: run tests
+      shell: bash
+      run: |
+        make test
