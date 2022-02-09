@@ -1,4 +1,5 @@
-name: Taxonomy Re API tests on:
+name: Relation Engine test and deploy
+on:
   [push, pull_request]
 jobs:
   run_tests:
