@@ -9,6 +9,5 @@ jobs:
 
     - name: run tests
       shell: bash
-      run:
+      run: |
         make test
-
