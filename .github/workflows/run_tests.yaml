@@ -9,8 +9,6 @@ jobs:
 
     - name: run tests
       shell: bash
-      env:
-        GITHUB_ACTIONS_CI: 1
-      run: |
+      run:
         make test
 
