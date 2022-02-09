@@ -1,4 +1,4 @@
-name: Relation Engine test and deploy
+name: Run tests
 on:
   [push, pull_request]
 jobs:
