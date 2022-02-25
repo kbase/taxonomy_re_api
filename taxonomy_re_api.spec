@@ -59,7 +59,7 @@ module taxonomy_re_api {
     } GetSiblingsParams;
 
     /*
-    Parameters for get_associated_ws_objects.
+    Parameters for search_species and search_taxa.
         ts - optional - fetch documents with this active timestamp (defaults to now)
         ns - required - taxonomy namespace to use (only "ncbi_taxonomy")
         search_text - required - scientific name search text
@@ -72,7 +72,7 @@ module taxonomy_re_api {
         string search_text;
         int limit;
         int offset;
-    } SearchTaxaParams;
+    } SearchParams;
 
     /*
     Parameters for get_associated_ws_objects.
@@ -113,7 +113,10 @@ module taxonomy_re_api {
     funcdef get_siblings(GetSiblingsParams params) returns (Results result);
 
     /* Search all taxon nodes by scientific name. */
-    funcdef search_taxa(SearchTaxaParams params) returns (Results result);
+    funcdef search_taxa(SearchParams params) returns (Results result);
+
+    /* Search all species/strain nodes by scientific name. */
+    funcdef search_species(SearchParams params) returns (Results result);
 
     /* Get all workspace objects associated with a taxon. */
     funcdef get_associated_ws_objects(GetAssociatedWsObjectsParams params)

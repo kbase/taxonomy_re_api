@@ -1,6 +1,7 @@
 .PHONY: test local-test
 
 test:
+	docker-compose build
 	docker-compose run --rm --entrypoint sh app src/scripts/run_tests.sh
 
 

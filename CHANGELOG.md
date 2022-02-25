@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - extended jsonrpc exceptions to be comprehensive; utilized in main file; extended integration tests to cover.
+- `search_species` method now calls the `taxonomy_search_species_strain` and `taxonomy_search_species_strain_no_sort` stored queries in the RE API
 
 ## [3.7.1] - 2020-04-14
 

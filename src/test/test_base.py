@@ -18,6 +18,9 @@ print(f'API_URL   : {api_url()}')
 print(f'VERIFY_SSL: {verify_ssl()}')
 
 
+TS = 1635479149946  # when test was written
+
+
 class TestBase(unittest.TestCase):
 
     # Bundled assertions
@@ -53,6 +56,36 @@ class TestBase(unittest.TestCase):
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1)
         return result[0]
+
+    def assert_query_results(
+        self,
+        sciname_target,
+        search_text_exp_hit,
+        search_text_exp_miss=[],
+        expired=False,
+    ):
+        ts_params = {'ts': None} if expired else {}
+        for st in search_text_exp_hit + search_text_exp_miss:
+            resp = self.request({
+                'version': '1.1',
+                'method': 'taxonomy_re_api.search_species',
+                'params': [{
+                    'search_text': st,
+                    'ns': 'ncbi_taxonomy',
+                    **ts_params,
+                }]
+            })
+            self.assertTrue(resp.ok, resp.text)
+            sciname_hits = [
+                doc['scientific_name']
+                for doc in resp.json()['result'][0]['results']
+            ]
+            assert_in_method = self.assertIn if st in search_text_exp_hit else self.assertNotIn
+            assert_in_method(
+                sciname_target,
+                sciname_hits,
+                f"target: {sciname_target}, query: {st}, sciname_hits: {sciname_hits}"
+            )
 
     def request(self, rpc):
         return requests.post(

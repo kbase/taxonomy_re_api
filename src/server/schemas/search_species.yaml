@@ -10,7 +10,7 @@ properties:
     title: Namespace
     enum: ['rdp_taxonomy', 'ncbi_taxonomy', 'gtdb', 'silva_taxonomy']
   ts:
-    type: integer
+    type: [integer, "null"]
     minimum: 0
     description: Defaults to now
   limit:
