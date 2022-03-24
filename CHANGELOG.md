@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `get_data_sources` method which returns taxonomy data sources with optional filtering
+- `github actions` Docker Image Builds at ghcr.io
 
 ### Changed
 
