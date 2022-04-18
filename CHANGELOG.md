@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.1] - 2022-04-18
+
+### Added
+
+- `github actions` Docker Image Builds at ghcr.io
+
 ## [3.7.2] - 2022-03-02
 
 ### Added
 
 - `get_data_sources` method which returns taxonomy data sources with optional filtering
-- `github actions` Docker Image Builds at ghcr.io
 
 ### Changed
 
