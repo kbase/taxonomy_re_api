@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.9.0] - 2022-04-18
 
 ### Changed
- - removed un-needed GHA actions
- - bumped kbase.yml in order to register to beta/release
+ - Removed un-needed GHA actions
+ - Bumped kbase.yml in order to register to beta/release
 
 ## [3.7.2] - 2022-03-02
 
