@@ -2,7 +2,7 @@
 
 This is an API for taxonomy data (updated from [taxon_api](https://github.com/kbase/taxon_api)) that queries the relation engine.
 
-This service is a registered as a KBase dynamic service under the module name `taxonomy_re_api`.
+This service is a registered as a KBase dynamic service under the module name `taxonomy_re_api` and is managed by the Catalog.
 
 ## API
 
