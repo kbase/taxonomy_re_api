@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Removed un-needed GHA actions
  - Bumped kbase.yml in order to register to beta/release
+ - Upgraded sanic: 19.3.1 -> 20.12.6
+ - Upgraded pyyaml: 5.1 -> 5.4
 
 ## [3.7.2] - 2022-03-02
 

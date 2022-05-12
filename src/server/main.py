@@ -16,7 +16,7 @@ from src.exceptions import MethodNotFound, InvalidRequest, InvalidParams, Server
 
 _CONF = get_config()
 _SCHEMAS = load_schemas()
-app = sanic.Sanic()
+app = sanic.Sanic(name='Taxonomy RE API')
 app.config.API_TITLE = 'Taxonomy RE API'
 app.config.API_DESCRIPTION = 'Taxonomy data API using the relation engine.'
 app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
