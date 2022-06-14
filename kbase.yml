@@ -1,7 +1,7 @@
 module-name: taxonomy_re_api
 module-description: Query relation engine based taxonomy data
 service-language: python
-module-version: 3.8.0
-owners: ["jayrbolton"]
+module-version: 3.9.1
+owners: ["jayrbolton", "swwang"]
 service-config:
   dynamic-service: true
