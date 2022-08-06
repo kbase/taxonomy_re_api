@@ -1,4 +1,4 @@
-sanic==20.12.6
+sanic==20.12.7
 sanic-openapi==0.5.3
 requests==2.21.0
 jsonschema==3.0.1
